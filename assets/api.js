@@ -17,5 +17,6 @@ window.API = (function () {
   return {
     submitQuiz: (session) => call("submit-quiz", { session }),
     completeOrder: (p) => call("complete-order", p),
+    loginLink: (email) => call("login-link", { email }),
   };
 })();
