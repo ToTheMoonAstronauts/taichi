@@ -50,16 +50,26 @@
     const sec = $("#section"); if (sec) sec.textContent = (scr && scr.section) || "";
   }
 
+  let _dir = 1;
   function go(delta) {
+    _dir = delta < 0 ? -1 : 1;
     S.index = Math.max(0, Math.min(F.screens.length, S.index + delta));
     save();
     if (S.index >= F.screens.length) { window.location.href = "checkout.html"; return; }
     render();
   }
+  function hidden(scr) { return scr && scr.femaleOnly && S.gender === "male"; }
 
   // ---- renderers ----
   function render() {
     const root = $("#step"); root.innerHTML = "";
+    // skip screens that don't apply (e.g. menopause for men), honoring travel direction
+    while (F.screens[S.index] && hidden(F.screens[S.index])) {
+      S.index += _dir;
+      if (S.index < 0) { S.index = 0; break; }
+      if (S.index >= F.screens.length) { window.location.href = "checkout.html"; return; }
+    }
+    save();
     setProgress();
     const scr = F.screens[S.index];
     if (!scr) { window.location.href = "checkout.html"; return; }
@@ -76,7 +86,8 @@
   function personalize(t) {
     const band = S.age_band ? S.age_band.replace(/-/, "–") : "";
     const decade = band ? band.split(/[-–]/)[0].replace(/.$/, "0") + "s" : "your age";
-    return t.replace("{decade}", decade).replace("{name}", S.name || "");
+    const gp = S.gender === "male" ? "men" : S.gender === "female" ? "women" : "people";
+    return t.replace(/\{decade\}/g, decade).replace(/\{genderPlural\}/g, gp).replace(/\{name\}/g, S.name || "");
   }
 
   function picsum(seed, w, h) { return `https://picsum.photos/seed/${encodeURIComponent("ctc-" + seed)}/${w}/${h}`; }
@@ -128,7 +139,8 @@
     head(scr, root);
     const cur = new Set(S.answers[scr.id] || []);
     const box = el("div", "opts");
-    const opts = scr.options.concat(scr.noneValue ? [{ value: scr.noneValue, label: scr.noneLabel || "None" }] : []);
+    const baseOpts = scr.options.filter(o => !(o.femaleOnly && S.gender === "male"));
+    const opts = baseOpts.concat(scr.noneValue ? [{ value: scr.noneValue, label: scr.noneLabel || "None", emoji: scr.noneEmoji }] : []);
     opts.forEach(o => {
       const sel = cur.has(o.value);
       box.appendChild(optRow(scr, o, sel, (row) => {
@@ -303,7 +315,28 @@
     return b;
   }
 
-  // ---- age gate (first screen of the quiz) ----
+  // ---- gender gate (very first screen of the quiz) ----
+  function genderGate() {
+    const root = $("#step"); root.innerHTML = "";
+    const bar = $("#progress > i"); if (bar) bar.style.width = "0%";
+    const sec = $("#section"); if (sec) sec.textContent = "";
+    root.appendChild(el("h1", "q", "Chair Tai Chi Workouts"));
+    root.appendChild(el("p", "sub", "Select your gender to get your free personalized plan"));
+    const grid = el("div", "grid grid-gender");
+    [["female", "Female", "gender-female"], ["male", "Male", "gender-male"]]
+      .forEach(([val, label, seed]) => {
+        const card = el("button", "opt");
+        card.appendChild(imgEl("cimg", seed, 400, 320));
+        card.appendChild(el("span", "lab", label));
+        card.onclick = () => { S.gender = val; save(); ageGate(); };
+        grid.appendChild(card);
+      });
+    root.appendChild(grid);
+    root.appendChild(el("p", "consent",
+      "By choosing your gender and continuing you agree to our Terms of Service and Privacy Policy."));
+  }
+
+  // ---- age gate (second screen of the quiz) ----
   function ageGate() {
     const root = $("#step"); root.innerHTML = "";
     const bar = $("#progress > i"); if (bar) bar.style.width = "0%";
@@ -330,6 +363,7 @@
     const qp = new URLSearchParams(location.search);
     const ages = ["40-49", "50-59", "60-69", "70-80"];
     S = window.CTC ? (window.CTC.reset(), window.CTC.get()) : S;
+    S.gender = Math.random() < 0.5 ? "female" : "male";
     S.age_band = ages[Math.floor(Math.random() * ages.length)];
     S.funnel = "chair-taichi"; S.status = "checkout";
     S.height_cm = 158 + Math.floor(Math.random() * 22);
@@ -340,8 +374,9 @@
     S.selected_plan = "4w"; S.answers = {};
     const rnd = (a) => a[Math.floor(Math.random() * a.length)];
     FUNNEL.screens.forEach(scr => {
+      if (scr.femaleOnly && S.gender === "male") return;       // skip female-only screens for men
       if (scr.type === "single") S.answers[scr.id] = rnd(scr.options).value;
-      else if (scr.type === "multi") { const n = 1 + Math.floor(Math.random() * Math.min(2, scr.options.length)); S.answers[scr.id] = [...scr.options].sort(() => Math.random() - 0.5).slice(0, n).map(o => o.value); }
+      else if (scr.type === "multi") { const opts = scr.options.filter(o => !(o.femaleOnly && S.gender === "male")); const n = 1 + Math.floor(Math.random() * Math.min(2, opts.length)); S.answers[scr.id] = [...opts].sort(() => Math.random() - 0.5).slice(0, n).map(o => o.value); }
       else if (scr.type === "input") S.answers[scr.id] = String(scr.field === "height" ? S.height_cm : scr.field === "weight" ? S.weight_kg : S.goal_weight_kg);
     });
     // jump straight to the email capture step (then name -> goals -> checkout work as normal)
@@ -352,11 +387,12 @@
 
   // ---- back button + boot ----
   const back = $("#back"); if (back) back.onclick = () => {
-    if (!S.age_band) { window.location.href = "index.html"; return; }
+    if (!S.gender) { window.location.href = "index.html"; return; }
+    if (!S.age_band) { S.gender = null; save(); genderGate(); return; }
     if (S.index === 0) { S.age_band = null; save(); ageGate(); return; }
     go(-1);
   };
   const _qp = new URLSearchParams(location.search);
   if (_qp.get("autotest") !== null || _qp.get("test") !== null || _qp.get("funnel") === "test") autotestFill();
-  else if (!S.age_band) ageGate(); else render();
+  else if (!S.gender) genderGate(); else if (!S.age_band) ageGate(); else render();
 })();
