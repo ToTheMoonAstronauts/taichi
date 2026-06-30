@@ -1,22 +1,19 @@
 /* Chair Tai Chi funnel — screen config.
- * Step ORDER, element TYPES, and QUESTION/OPTION labels mirror digestiplan.com/chair-taichi 1:1.
- * Interstitial ("info") titles/bodies are ORIGINAL wording (no verbatim marketing prose, no fake stats).
+ * Step ORDER, element TYPES, and QUESTION/OPTION labels mirror the captured digestiplan
+ * chair funnel (88 screenshots) 1:1. Interstitial ("info") titles/bodies are ORIGINAL wording
+ * (no verbatim marketing prose, no fabricated stats, no false sources).
  * Flow: gender (gate) -> age (gate) -> these screens -> loader -> email -> name -> goals -> checkout.
  *
  * Screen types: single | multi | input | info | loader | email | name | goals
- * Flags: section, layout("cards"|"ld"), statement, sub, noneValue/noneLabel, computeBMI,
- *        chart(bool), femaleOnly(bool, skipped when gender==='male'), personalize(bool).
+ * Flags: section, layout("cards"|"ld"), statement, sub, noneValue/noneLabel/noneEmoji, computeBMI,
+ *        photos(bool), chart(bool), femaleOnly(bool, skipped when gender==='male'), personalize(bool),
+ *        safetyNote.
  */
 window.FUNNEL = {
   product: "chair-taichi",
   brand: "Chair Tai Chi",
-  sections: [
-    { name: "My profile", upTo: 12 }, { name: "Activity", upTo: 20 },
-    { name: "Health & Safety", upTo: 23 }, { name: "Preferences", upTo: 32 },
-    { name: "Lifestyle", upTo: 47 }, { name: "Almost there", upTo: 57 },
-  ],
   screens: [
-    // ---------- My profile ----------
+    // ============ My profile ============
     { id: "tried_before", type: "single", section: "My profile",
       q: "Have you tried Chair Tai Chi before?",
       options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }] },
@@ -68,24 +65,28 @@ window.FUNNEL = {
 
     { id: "intro_smallchange", type: "info",
       title: "Small changes add up",
-      body: "Even a modest amount of weight loss can support your health and lower the risk of common conditions — gentle, steady progress is what lasts." },
+      body: "Even a modest amount of weight loss can support your health and how you feel day to day — gentle, steady progress is what lasts." },
+
+    { id: "projection_1", type: "info", chart: true,
+      title: "You'll get there sooner than you think",
+      body: "With a routine matched to you, steady progress is realistic — and we'll keep adapting it as you go." },
 
     { id: "intro_plan", type: "info", personalize: true,
       title: "A goal without a plan is just a wish",
       body: "{genderPlural} in their {decade} often need an approach tailored to their needs. Tell us a little more so we can build a Chair Tai Chi plan that's right for you." },
 
-    // ---------- Activity ----------
+    // ============ Activity ============
     { id: "last_in_shape", type: "single", section: "Activity",
       q: "When were you last in the best shape of your life?",
       options: [{ value: "lt1", label: "Less than a year ago", emoji: "🤔" },
         { value: "1to2", label: "1 to 2 years ago", emoji: "😮" },
         { value: "gt3", label: "More than 3 years ago", emoji: "😥" },
-        { value: "never", label: "Never", emoji: "🙅‍♀️" }] },
+        { value: "never", label: "Never", emoji: "🙅" }] },
 
     { id: "typical_day", type: "single", section: "Activity",
       q: "What does your typical day look like?",
       options: [{ value: "sitting", label: "I spend most of the day sitting", emoji: "💻" },
-        { value: "some", label: "I move around from time to time", emoji: "🚶‍♀️" },
+        { value: "some", label: "I move around from time to time", emoji: "🚶" },
         { value: "active", label: "I'm on my feet all day long", emoji: "👟" }] },
 
     { id: "activities", type: "multi", section: "Activity",
@@ -94,7 +95,7 @@ window.FUNNEL = {
         { value: "child", label: "Spending a lot of active time with my child", emoji: "👨‍👩‍👧" },
         { value: "stairs", label: "Climbing stairs frequently", emoji: "🪜" },
         { value: "household", label: "Active household tasks", emoji: "🏡" }],
-      noneValue: "none", noneLabel: "No", noneEmoji: "🙄" },
+      noneValue: "none", noneLabel: "No", noneEmoji: "🙅" },
 
     { id: "walks_freq", type: "single", section: "Activity",
       q: "How often do you go for walks?",
@@ -105,42 +106,36 @@ window.FUNNEL = {
       title: "Gentle doesn't mean ineffective",
       body: "Slow, mindful Chair Tai Chi trains balance, mobility and steady strength — a safe alternative to high-impact workouts that still does real work." },
 
-    { id: "relate_breath", type: "single", section: "Activity",
+    { id: "relate_breath", type: "single", section: "Activity", layout: "ld",
       q: "Do you relate to the following statement?",
       statement: "I'm out of breath after walking up one flight of stairs",
       options: [{ value: "no", label: "No", emoji: "🚫" }, { value: "yes", label: "Yes", emoji: "✅" }] },
 
-    { id: "relate_hard", type: "single", section: "Activity",
+    { id: "relate_hard", type: "single", section: "Activity", layout: "ld",
       q: "Do you relate to the following statement?",
-      statement: "Most workouts feel too hard to stick with long term",
+      statement: "I tend to give up when workouts feel too hard or boring",
       options: [{ value: "no", label: "No", emoji: "🚫" }, { value: "yes", label: "Yes", emoji: "✅" }] },
 
-    { id: "relate_progress", type: "single", section: "Activity",
+    { id: "relate_progress", type: "single", section: "Activity", layout: "ld",
       q: "Do you relate to the following statement?",
-      statement: "I get frustrated when I don't see progress",
+      statement: "I'm not sure how to choose workouts that suit me",
       options: [{ value: "no", label: "No", emoji: "🚫" }, { value: "yes", label: "Yes", emoji: "✅" }] },
 
-    { id: "intro_eligible", type: "info", personalize: true,
+    { id: "intro_eligible", type: "info", chart: true,
       title: "Good news — you're eligible!",
-      body: "Your answers line up well with a gentle, seated routine. Let's finish a few details to tailor your plan." },
+      body: "Your answers line up well with a gentle, seated routine. Here's how progress could build over your first weeks." },
 
-    // ---------- Health & Safety ----------
-    { id: "medications", type: "single", section: "Health & Safety",
-      q: "Are you taking any medications?", sub: "This is just for your safety.",
-      options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }] },
+    { id: "pain_points", type: "multi", section: "Activity", photos: true,
+      q: "Are any of the following an issue for you?", sub: "Your plan will adapt to keep you comfortable and safe",
+      options: [{ value: "back", label: "Sensitive back" }, { value: "knees", label: "Achy knees" },
+        { value: "hips", label: "Tight hips" }],
+      noneValue: "none", noneLabel: "None of the above" },
 
-    { id: "mobility", type: "single", section: "Health & Safety",
-      q: "Do you have any physical or mobility restrictions we should know about?",
-      sub: "This is just for your safety.",
-      options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }, { value: "na", label: "Prefer not to answer" }],
-      safetyNote: "Please adapt any movements to suit your body. We recommend checking with your doctor or physical therapist before starting any new activity." },
+    { id: "intro_lowimpact", type: "info",
+      title: "Easier on knees and back",
+      body: "Because it's seated and low-impact, Chair Tai Chi keeps stress off your joints — a gentle choice if you're prone to aches or stiffness." },
 
-    { id: "intro_safe", type: "info",
-      title: "A safer way to build balance and stability",
-      body: "Because it's seated and low-impact, Chair Tai Chi is a gentle way to build steadiness and confidence in how you move." },
-
-    // ---------- Preferences ----------
-    { id: "where_exercise", type: "multi", section: "Preferences",
+    { id: "where_exercise", type: "multi", section: "Activity",
       q: "Where do you prefer to exercise?", sub: "Choose all that apply",
       options: [{ value: "home", label: "Home", emoji: "🏠" }, { value: "outside", label: "Outside", emoji: "🌳" },
         { value: "gym", label: "Gym", emoji: "🏋️" }, { value: "any", label: "No preference", emoji: "🤷" }] },
@@ -149,36 +144,36 @@ window.FUNNEL = {
       title: "Your home works perfectly",
       body: "All you need is a sturdy chair and a little space — no equipment, no commute. Practise whenever it suits you." },
 
-    { id: "steps_need", type: "single", section: "Preferences",
+    { id: "steps_need", type: "single", section: "Activity",
       q: "How many steps do you think you need in a day?",
       options: [{ value: "easy", label: "Easy: <5K steps", emoji: "👌" },
         { value: "medium", label: "Medium: 5–10K steps", emoji: "🔥" },
         { value: "hard", label: "Hard: >10K steps", emoji: "🏅" },
-        { value: "unsure", label: "I'm not sure", emoji: "🤷‍♀️" }] },
+        { value: "unsure", label: "I'm not sure", emoji: "🤷" }] },
 
     { id: "intro_lowdose", type: "info",
       title: "You may need less than you think",
       body: "Short, gentle daily practice is easier to keep up than long, occasional workouts — and consistency is what moves the needle." },
 
     // like / dislike series (image card + 👎/😐/👍)
-    { id: "ld_mobility", type: "single", section: "Preferences", layout: "ld",
+    { id: "ld_mobility", type: "single", section: "Activity", layout: "ld",
       q: "Like or dislike?", statement: "Stretching & Mobility",
       options: [{ value: "dislike", label: "Dislike", emoji: "👎" }, { value: "neutral", label: "Neutral", emoji: "😐" }, { value: "like", label: "Like", emoji: "👍" }] },
-    { id: "ld_breathing", type: "single", section: "Preferences", layout: "ld",
+    { id: "ld_breathing", type: "single", section: "Activity", layout: "ld",
       q: "Like or dislike?", statement: "Mindful breathing",
       options: [{ value: "dislike", label: "Dislike", emoji: "👎" }, { value: "neutral", label: "Neutral", emoji: "😐" }, { value: "like", label: "Like", emoji: "👍" }] },
-    { id: "ld_balance", type: "single", section: "Preferences", layout: "ld",
+    { id: "ld_balance", type: "single", section: "Activity", layout: "ld",
       q: "Like or dislike?", statement: "Balance",
       options: [{ value: "dislike", label: "Dislike", emoji: "👎" }, { value: "neutral", label: "Neutral", emoji: "😐" }, { value: "like", label: "Like", emoji: "👍" }] },
-    { id: "ld_strength", type: "single", section: "Preferences", layout: "ld",
+    { id: "ld_strength", type: "single", section: "Activity", layout: "ld",
       q: "Like or dislike?", statement: "Gentle seated strength",
       options: [{ value: "dislike", label: "Dislike", emoji: "👎" }, { value: "neutral", label: "Neutral", emoji: "😐" }, { value: "like", label: "Like", emoji: "👍" }] },
 
     { id: "projection_2", type: "info", chart: true,
-      title: "You'll get there sooner than you think",
+      title: "You'll reach your goal sooner than expected",
       body: "With a routine matched to your preferences, steady progress is realistic — and we'll keep adapting it as you go." },
 
-    // ---------- Lifestyle ----------
+    // ============ Lifestyle ============
     { id: "tension", type: "single", section: "Lifestyle",
       q: "Do you ever feel mentally tense or on edge?",
       options: [{ value: "lots", label: "I feel that a lot lately", emoji: "😫" },
@@ -198,9 +193,9 @@ window.FUNNEL = {
 
     { id: "mood", type: "single", section: "Lifestyle",
       q: "How's your mood most days?",
-      options: [{ value: "low", label: "Low — I often feel down or irritable" },
-        { value: "mixed", label: "Up and down — it depends on the day" },
-        { value: "steady", label: "Steady — I usually feel okay" }] },
+      options: [{ value: "low", label: "Low — I often feel down or irritable", emoji: "🔴" },
+        { value: "mixed", label: "Up and down — it depends on the day", emoji: "🟡" },
+        { value: "steady", label: "Steady — I usually feel okay", emoji: "🟢" }] },
 
     { id: "intro_focus", type: "info",
       title: "Feel calmer and more focused",
@@ -229,7 +224,7 @@ window.FUNNEL = {
 
     { id: "produce", type: "single", section: "Lifestyle",
       q: "How's your fruit and vegetable intake?", sub: "Generally, how many fruit and veggies do you eat a day?",
-      options: [{ value: "low", label: "None or a little", emoji: "🙅‍♀️" },
+      options: [{ value: "low", label: "None or a little", emoji: "🙅" },
         { value: "fair", label: "A fair bit", emoji: "🍎" },
         { value: "lots", label: "I might be a rabbit", emoji: "🥕" }] },
 
@@ -241,7 +236,7 @@ window.FUNNEL = {
       q: "What foods do you crave most often?", sub: "Choose all that apply",
       options: [{ value: "sweet", label: "Sweet treats", emoji: "🧁" }, { value: "salty", label: "Salty snacks", emoji: "🥨" },
         { value: "fast", label: "Fast food", emoji: "🍟" }, { value: "wine", label: "I like my wine", emoji: "🍷" },
-        { value: "soda", label: "Soda", emoji: "🥤" }], noneValue: "none", noneLabel: "None of the above", noneEmoji: "🤷‍♀️" },
+        { value: "soda", label: "Soda", emoji: "🥤" }], noneValue: "none", noneLabel: "None of the above", noneEmoji: "🤷" },
 
     { id: "habits", type: "multi", section: "Lifestyle",
       q: "Do you have any of the following habits?", sub: "Choose all that apply",
@@ -249,19 +244,38 @@ window.FUNNEL = {
         { value: "full", label: "Continuing to eat when full", emoji: "🍩" },
         { value: "late", label: "Late-night snacking", emoji: "🌙" },
         { value: "screen", label: "Mixing screen time with mealtime", emoji: "💻" },
-        { value: "skip", label: "Skipping meals too often", emoji: "🍽️" }], noneValue: "none", noneLabel: "None of the above", noneEmoji: "🤷‍♀️" },
+        { value: "skip", label: "Skipping meals too often", emoji: "🍽️" }], noneValue: "none", noneLabel: "None of the above", noneEmoji: "🤷" },
 
     { id: "tracker", type: "single", section: "Lifestyle",
       q: "Do you wear a smartwatch or fitness tracker?", sub: "Like: Apple Watch, Fitbit, Samsung Galaxy, etc.",
+      options: [{ value: "yes", label: "Yes", emoji: "✔️" }, { value: "no", label: "No", emoji: "✖️" }] },
+
+    { id: "intro_brain", type: "info",
+      title: "Gentle movement supports a sharp mind",
+      body: "Staying gently active supports circulation, focus and memory as we age — another reason a steady routine is worth keeping." },
+
+    // ============ Health & Safety ============
+    { id: "medications", type: "single", section: "Health & Safety",
+      q: "Are you taking any medications?", sub: "Rest assured, this is just for your safety.",
       options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }] },
 
-    { id: "menopause", type: "single", section: "Lifestyle", femaleOnly: true,
+    { id: "mobility", type: "single", section: "Health & Safety",
+      q: "Do you have any physical or mobility restrictions we should know about?",
+      sub: "Rest assured, this is just for your safety.",
+      options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }, { value: "na", label: "Prefer not to answer" }],
+      safetyNote: "Please adapt any movements to suit your body. We recommend checking with your doctor or physical therapist before starting any new activity." },
+
+    { id: "intro_safe", type: "info",
+      title: "Prioritizing your health and safety",
+      body: "Because it's seated and low-impact, Chair Tai Chi is a gentle way to build steadiness and confidence in how you move." },
+
+    { id: "menopause", type: "single", section: "Health & Safety", femaleOnly: true,
       q: "Have you gone through menopause?", sub: "Hormonal changes can impact your metabolism and nutritional needs.",
       options: [{ value: "no", label: "No" }, { value: "going", label: "Going through it" },
         { value: "passed", label: "Already passed it" }, { value: "unsure", label: "Not sure" },
         { value: "na", label: "Prefer not to answer" }] },
 
-    // ---------- Almost there ----------
+    // ============ Almost there ============
     { id: "intro_almost", type: "info",
       title: "Almost done!",
       body: "You're moments away from your personalized plan. Let's finish with what keeps you going, so we can support you the right way." },
@@ -300,7 +314,7 @@ window.FUNNEL = {
       body: "The most common reason people quit is starting too big, too fast. Our plan does the opposite: small, sustainable steps you can actually keep." },
 
     { id: "explore", type: "multi", section: "Almost there",
-      q: "While we're customizing your journey, what else do you want to explore?", sub: "Choose all that apply",
+      q: "While we customize your journey, what else do you want to explore?", sub: "Choose all that apply",
       options: [{ value: "energy", label: "Upping my energy levels" }, { value: "habits", label: "Cultivating healthy behaviors" },
         { value: "digestion", label: "Understand digestion" }, { value: "stress", label: "Reducing stress" },
         { value: "flex", label: "Improving flexibility" }, { value: "posture", label: "Getting better posture" },
@@ -315,12 +329,16 @@ window.FUNNEL = {
       title: "Perfect — we've matched your pace",
       body: "And it doesn't stop here: we'll adapt your plan as your body and activity level change throughout your journey." },
 
+    { id: "intro_focus20", type: "info", chart: true,
+      title: "A few minutes a day adds up",
+      body: "Short, regular sessions support focus, energy and clearer thinking — small efforts that compound over time." },
+
     { id: "daypart", type: "single", section: "Almost there",
       q: "When do you feel most “on” — morning or night?",
       options: [{ value: "morning", label: "Morning" }, { value: "night", label: "Night" }, { value: "depends", label: "It depends" }] },
 
-    // ---------- Plan generation + capture ----------
-    { id: "loader", type: "loader", title: "Creating your personalized action plan…",
+    // ============ Plan generation + capture ============
+    { id: "loader", type: "loader", title: "Just a moment…",
       steps: ["Analyzing Body Parameters", "Activity Preferences", "Health & Safety", "Generating Your Action Plan"] },
 
     { id: "email", type: "email", title: "Your action plan is ready",

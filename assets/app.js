@@ -80,7 +80,8 @@
 
   function head(scr, root) {
     if (scr.q) root.appendChild(el("h1", "q", personalize(scr.q)));
-    if (scr.statement) root.appendChild(el("div", "statement", scr.statement));
+    // For ld/card-statement screens the statement is shown inside the image card, not as a box.
+    if (scr.statement && scr.layout !== "ld") root.appendChild(el("div", "statement", scr.statement));
     if (scr.sub) root.appendChild(el("p", "sub", scr.sub));
   }
   function personalize(t) {
@@ -112,33 +113,21 @@
     return row;
   }
 
-  // A plain single screen (yes/no, no emoji, no images) carries a decorative figure below the options.
-  function isPlainSingle(scr) {
-    return scr.type === "single" && !scr.layout && !scr.photos && !(scr.options || []).some(o => o.emoji);
-  }
-  // Shared decorative cut-out figure. TODO: swap picsum for the real transparent cut-out PNG.
-  function figureEl() {
-    const w = el("div", "quiz-figure");
-    const img = document.createElement("img"); img.src = picsum("figure", 520, 620); img.alt = ""; img.loading = "lazy";
-    w.appendChild(img); return w;
-  }
-
   function rSingle(scr, root) {
     head(scr, root);
     const wrapCls = scr.layout === "cards" ? "grid" : scr.layout === "ld" ? "ld" : "opts";
     if (scr.layout === "ld" && scr.statement) {
-      // statement already shown; add a visual card
-      const card = el("div", "ld-card", scr.statement);
-      root.insertBefore(card, root.querySelector(".statement").nextSibling || null);
+      // image card carrying the statement, shown above the option cards
+      root.appendChild(el("div", "ld-card", scr.statement));
     }
     const box = el("div", wrapCls);
+    if (scr.layout === "ld") box.style.gridTemplateColumns = `repeat(${scr.options.length},1fr)`;
     scr.options.forEach(o => box.appendChild(optRow(scr, o, false, () => {
       S.answers[scr.id] = o.value; save();
       if (scr.safetyNote) { showSafety(scr, root); }
       else go(1);
     })));
     root.appendChild(box);
-    if (isPlainSingle(scr)) root.appendChild(figureEl());
   }
 
   function showSafety(scr, root) {
@@ -344,7 +333,6 @@
       box.appendChild(row);
     });
     root.appendChild(box);
-    root.appendChild(figureEl());
     root.appendChild(el("p", "consent",
       "By continuing you agree to our Terms of Service and Privacy Policy."));
   }
