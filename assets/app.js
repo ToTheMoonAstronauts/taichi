@@ -177,6 +177,7 @@
     const btn = inlineCta("Continue", () => { commit(); if (valid()) go(1); }, !valid());
     inp.oninput = () => { commit(); btn.disabled = !valid(); };
     inp.onkeydown = (e) => { if (e.key === "Enter" && valid()) { commit(); go(1); } };
+    keepVisible(inp, btn);
     setTimeout(() => inp.focus(), 50);
   }
 
@@ -235,20 +236,29 @@
     });
   }
 
+  // Keep the CTA visible above the mobile keyboard: scroll it into view on focus,
+  // and again when the keyboard opens/closes (visualViewport resize).
+  function keepVisible(inp, btn) {
+    const bring = () => setTimeout(() => { try { btn.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} }, 320);
+    inp.addEventListener("focus", bring);
+    if (window.visualViewport) { const h = () => bring(); window.visualViewport.addEventListener("resize", h); inp.addEventListener("blur", () => window.visualViewport.removeEventListener("resize", h), { once: true }); }
+  }
+
   function rEmail(scr, root) {
     root.appendChild(el("div", "info-ill", "📋"));
     root.appendChild(el("h1", "q", scr.title));
     root.appendChild(el("p", "sub", scr.sub));
     const inp = el("input", "text-field"); inp.type = "email"; inp.placeholder = "you@example.com";
     inp.value = S.email || ""; root.appendChild(inp);
-    root.appendChild(el("p", "consent",
-      "By continuing you agree to receive emails about your plan. You can unsubscribe anytime. See our Terms and Privacy Policy."));
-    inlineCta("See my plan", () => {
+    const btn = inlineCta("See my plan", () => {
       const v = inp.value.trim(); if (!/^\S+@\S+\.\S+$/.test(v)) { inp.focus(); inp.style.borderColor = "#ef6a6a"; return; }
       S.email = v; S.status = "email_captured"; window.CTC.saveSession();
       if (window.API) API.submitQuiz(S);   // save lead to Supabase (quiz_sessions)
       go(1);
     });
+    root.appendChild(el("p", "consent",
+      "By continuing you agree to receive emails about your plan. You can unsubscribe anytime. See our Terms and Privacy Policy."));
+    keepVisible(inp, btn);
     setTimeout(() => inp.focus(), 50);
   }
 
@@ -256,7 +266,8 @@
     root.appendChild(el("h1", "q", scr.title));
     const inp = el("input", "text-field"); inp.type = "text"; inp.placeholder = "First name";
     inp.value = S.name || ""; root.appendChild(inp);
-    inlineCta("Continue", () => { const v = inp.value.trim(); if (!v) { inp.focus(); return; } S.name = v; save(); go(1); });
+    const btn = inlineCta("Continue", () => { const v = inp.value.trim(); if (!v) { inp.focus(); return; } S.name = v; save(); go(1); });
+    keepVisible(inp, btn);
     setTimeout(() => inp.focus(), 50);
   }
 
