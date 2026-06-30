@@ -131,6 +131,11 @@
       else go(1);
     })));
     root.appendChild(box);
+    if (scr.figure) {
+      const w = el("div", "quiz-figure");
+      const img = document.createElement("img"); img.src = scr.figure; img.alt = ""; img.loading = "lazy";
+      w.appendChild(img); root.appendChild(w);
+    }
   }
 
   function showSafety(scr, root) {

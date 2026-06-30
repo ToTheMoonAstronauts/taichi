@@ -15,7 +15,7 @@ window.FUNNEL = {
   screens: [
     // ============ My profile ============
     { id: "tried_before", type: "single", section: "My profile",
-      q: "Have you tried Chair Tai Chi before?",
+      q: "Have you tried Chair Tai Chi before?", figure: "assets/2_tried.webp",
       options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }] },
 
     { id: "intro_encourage", type: "info",
