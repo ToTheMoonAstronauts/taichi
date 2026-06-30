@@ -126,8 +126,7 @@
     if (scr.layout === "ld" && scr.statement) {
       // image card carrying the statement, shown above the option cards
       const card = el("div", "ld-card", scr.statement);
-      // TODO: swap picsum for the real activity/illustration asset per screen
-      card.style.setProperty("--ld-img", `url(${picsum("ld-" + scr.id, 800, 420)})`);
+      card.style.setProperty("--ld-img", `url(${scr.cardImg || picsum("ld-" + scr.id, 800, 420)})`);
       root.appendChild(card);
     }
     const box = el("div", wrapCls);
@@ -156,7 +155,7 @@
     const cur = new Set(S.answers[scr.id] || []);
     const box = el("div", scr.layout === "cards" ? "grid cards-multi" : "opts");
     const baseOpts = scr.options.filter(o => !(o.femaleOnly && S.gender === "male"));
-    const opts = baseOpts.concat(scr.noneValue ? [{ value: scr.noneValue, label: scr.noneLabel || "None", emoji: scr.noneEmoji }] : []);
+    const opts = baseOpts.concat(scr.noneValue ? [{ value: scr.noneValue, label: scr.noneLabel || "None", emoji: scr.noneEmoji, img: scr.noneImg }] : []);
     opts.forEach(o => {
       const sel = cur.has(o.value);
       box.appendChild(optRow(scr, o, sel, (row) => {

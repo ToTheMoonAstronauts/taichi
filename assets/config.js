@@ -98,21 +98,21 @@ window.FUNNEL = {
       options: [{ value: "daily", label: "Almost every day" }, { value: "3to4", label: "3–4 times per week" },
         { value: "1to2", label: "1–2 times per week" }, { value: "rare", label: "Once a month or less" }] },
 
-    { id: "intro_effective", type: "info",
+    { id: "intro_effective", type: "info", image: "assets/18.webp",
       title: "Gentle doesn't mean ineffective",
       body: "Slow, mindful Chair Tai Chi trains balance, mobility and steady strength — a safe alternative to high-impact workouts that still does real work." },
 
-    { id: "relate_breath", type: "single", section: "Activity", layout: "ld",
+    { id: "relate_breath", type: "single", section: "Activity", layout: "ld", cardImg: "assets/19_stairs.webp",
       q: "Do you relate to the following statement?",
       statement: "I'm out of breath after walking up one flight of stairs",
       options: [{ value: "no", label: "No", emoji: "🚫" }, { value: "yes", label: "Yes", emoji: "✅" }] },
 
-    { id: "relate_hard", type: "single", section: "Activity", layout: "ld",
+    { id: "relate_hard", type: "single", section: "Activity", layout: "ld", cardImg: "assets/20_excersize.webp",
       q: "Do you relate to the following statement?",
       statement: "I tend to give up when workouts feel too hard or boring",
       options: [{ value: "no", label: "No", emoji: "🚫" }, { value: "yes", label: "Yes", emoji: "✅" }] },
 
-    { id: "relate_progress", type: "single", section: "Activity", layout: "ld",
+    { id: "relate_progress", type: "single", section: "Activity", layout: "ld", cardImg: "assets/21_workout.webp",
       q: "Do you relate to the following statement?",
       statement: "I'm not sure how to choose workouts that suit me",
       options: [{ value: "no", label: "No", emoji: "🚫" }, { value: "yes", label: "Yes", emoji: "✅" }] },
@@ -123,9 +123,10 @@ window.FUNNEL = {
 
     { id: "pain_points", type: "multi", section: "Activity", layout: "cards",
       q: "Are any of the following an issue for you?", sub: "Your plan will adapt to keep you comfortable and safe",
-      options: [{ value: "back", label: "Sensitive back" }, { value: "knees", label: "Achy knees" },
-        { value: "hips", label: "Tight hips" }],
-      noneValue: "none", noneLabel: "None of the above" },
+      options: [{ value: "back", label: "Sensitive back", img: "assets/23_back.webp" },
+        { value: "knees", label: "Achy knees", img: "assets/23_knees.webp" },
+        { value: "hips", label: "Tight hips", img: "assets/23_hips.webp" }],
+      noneValue: "none", noneLabel: "None of the above", noneImg: "assets/23_none.webp" },
 
     { id: "intro_lowimpact", type: "info",
       title: "Easier on knees and back",
