@@ -254,7 +254,7 @@ window.FUNNEL = {
       q: "Do you wear a smartwatch or fitness tracker?", sub: "Like: Apple Watch, Fitbit, Samsung Galaxy, etc.",
       options: [{ value: "yes", label: "Yes", emoji: "✔️" }, { value: "no", label: "No", emoji: "✖️" }] },
 
-    { id: "intro_brain", type: "info", image: "assets/47b.png",
+    { id: "intro_brain", type: "info", image: "assets/47c.jpg",
       title: "Look after your brain, not just your body",
       body: "Staying gently active is associated with sharper memory and better brain health as we age. A short daily routine is one of the simplest ways to help protect your mind for the years ahead." },
 
