@@ -300,7 +300,7 @@ window.FUNNEL = {
       title: "You're in good hands",
       body: "Let us take care of you while you take care of yourself. We're here for you all along the way." },
 
-    { id: "intro_almost", type: "info", image: "assets/3.webp",
+    { id: "intro_almost", type: "info", image: "assets/57c.jpg",
       title: "Almost done!",
       body: "You're moments away from your personalized plan. Let's finish with what keeps you motivated." },
 
@@ -334,7 +334,7 @@ window.FUNNEL = {
         { value: "coaching", label: "Ineffective coaching" },
         { value: "none", label: "I didn't face any obstacles" }, { value: "other", label: "Other" }] },
 
-    { id: "intro_sustainable", type: "info", image: "assets/bodies_2b.jpg",
+    { id: "intro_sustainable", type: "info", image: "assets/62.webp",
       title: "Why people give up — and how we avoid it",
       body: "Most people quit because they start too big, too fast. Our plan does the opposite — small, sustainable steps you can keep for good." },
 
@@ -351,13 +351,13 @@ window.FUNNEL = {
       options: [{ value: "fast", label: "As quickly as possible" }, { value: "slow", label: "Slow and steady does it" },
         { value: "between", label: "Somewhere between the two" }] },
 
-    { id: "intro_paced", type: "info", image: "assets/5.webp",
+    { id: "intro_paced", type: "info", image: "assets/65.webp",
       title: "Perfect — we've matched your pace",
       body: "And it doesn't stop here: we'll adapt your plan as your body and activity level change throughout your journey." },
 
-    { id: "intro_focus20", type: "info", chart: true,
-      title: "A few minutes a day adds up",
-      body: "Short, regular sessions support focus, energy and clearer thinking — small efforts that compound over time." },
+    { id: "intro_focus20", type: "info", image: "assets/66.webp",
+      title: "Just 20 minutes of Chair Tai Chi boosts focus and brainpower",
+      body: "It increases blood flow to your brain and helps sharpen memory, improve focus, and support clearer thinking." },
 
     { id: "daypart", type: "single", section: "Almost there",
       q: "When do you feel most “on” — morning or night?",
