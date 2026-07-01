@@ -298,7 +298,7 @@ window.FUNNEL = {
 
     { id: "intro_goodhands", type: "info", image: "assets/bodies_2b.jpg",
       title: "You're in good hands",
-      body: "We'll take care of the plan while you take care of yourself — with gentle guidance every step of the way." },
+      body: "Let us take care of you while you take care of yourself. We're here for you all along the way." },
 
     { id: "intro_almost", type: "info", image: "assets/3.webp",
       title: "Almost done!",
