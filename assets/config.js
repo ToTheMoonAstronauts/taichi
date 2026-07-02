@@ -286,9 +286,9 @@ window.FUNNEL = {
     { id: "loader", type: "loader", title: "Just a moment...", sub: "Getting things ready for you", per: 1600,
       cards: [
         { img: "assets/55_1b.jpg", text: "Built with care, for how you move" },
-        { img: "assets/55_2.jpg", text: "We focus on how your body feels — not dieting" },
-        { img: "assets/55_3.jpg", text: "Small, steady habits are what last" },
-        { img: "assets/55_4.jpg", text: "A plan you can actually keep up with" },
+        { img: "assets/55_2b.jpg", text: "We focus on how your body feels — not dieting" },
+        { img: "assets/55_3b.jpg", text: "Small, steady habits are what last" },
+        { img: "assets/55_4b.jpg", text: "A plan you can actually keep up with" },
         { img: "assets/55_5b.jpg", text: "Just follow your plan, one short session at a time" },
         { img: "assets/55_6b.jpg", text: "It only takes a few minutes a day" },
         { img: "assets/55_7b.jpg", text: "Off days are completely okay" },
