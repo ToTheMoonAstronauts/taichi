@@ -26,7 +26,7 @@
     <p class="fineprint">Selected add-ons are charged once to your account. Refundable per our refund policy.</p>
   </main>
 
-  <script src="assets/flow.js"></script>
+  <script src="assets/flow.js?v=2"></script>
   <script>
     const GUIDES = [
       { id:"sleep", icon:"🛏️", gt:"Better sleep", gd:"Gentle routines for deeper, more restful nights", price:18.99 },
@@ -41,7 +41,7 @@
       const rowG = g => `<div class="guide ${selected===g.id?"sel":""}" data-id="${g.id}">
         <span class="ic">${g.icon}</span>
         <span class="gtext"><span class="gt">${g.gt}</span><span class="gd">${g.gd}</span></span>
-        <span class="gprice">${g.old?`<span class="old">€${g.old}</span>`:""}€${g.price.toFixed(2)}${g.off?`<span class="tag-off">${g.off}</span>`:""}</span>
+        <span class="gprice">${g.old?`<span class="old">$${g.old}</span>`:""}$${g.price.toFixed(2)}${g.off?`<span class="tag-off">${g.off}</span>`:""}</span>
         ${g.rec?'<span class="tag-rec">RECOMMENDED</span>':""}</div>`;
       box.innerHTML = GUIDES.map(rowG).join("") + rowG(BUNDLE);
       box.querySelectorAll(".guide").forEach(el => el.onclick = () => { selected = el.dataset.id; render(); });

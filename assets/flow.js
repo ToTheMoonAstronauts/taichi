@@ -15,7 +15,7 @@ window.FLOW = (function () {
   }
   function removeItem(id) { const s = ensure(get()); s.order = s.order.filter(o => o.id !== id); save(s); return s; }
   function total() { return ensure(get()).order.reduce((a, o) => a + (o.amount || 0), 0); }
-  function money(n) { return "€" + n.toFixed(2); }
+  function money(n) { return "$" + n.toFixed(2); }
 
   // 3-step header: active = 'setup' | 'offer' | 'plan'
   function stepHeader(active) {

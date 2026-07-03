@@ -283,15 +283,15 @@
           ${p.popular ? '<span class="popular">MOST POPULAR</span>' : ""}
           <span class="radio"></span>
           <span class="pn"><span class="name">${p.name}</span><br>
-            <span class="old">€${p.old}</span><span>€${p.intro}</span></span>
-          <span class="perday">€${p.perday}<small>per day</small></span>
+            <span class="old">$${p.old}</span><span>$${p.intro}</span></span>
+          <span class="perday">$${p.perday}<small>per day</small></span>
         </div>`).join("");
       document.querySelectorAll(".plan").forEach(el => el.onclick = () => { selected = el.dataset.id; renderPlans(); updateRenew(); });
     }
     function updateRenew() {
       const p = PLANS.find(x => x.id === selected);
       document.getElementById("renewNote").innerHTML =
-        `You'll be charged €${p.intro} today for your ${p.name.replace(' plan','')} introductory period. ` +
+        `You'll be charged $${p.intro} today for your ${p.name.replace(' plan','')} introductory period. ` +
         `Unless you cancel before it ends, it renews at the regular price. Cancel anytime in your account.`;
     }
     renderPlans(); updateRenew();
