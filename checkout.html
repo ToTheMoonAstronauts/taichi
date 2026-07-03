@@ -20,7 +20,7 @@
     --sans:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
     --grad:linear-gradient(135deg,#bf7350,#c4806a);
   }
-  body{font-family:var(--sans);background:var(--bg);color:var(--ink);padding-top:56px}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);padding-top:66px}
 
   /* shared component overrides (from style.css) */
   .btn{background:var(--grad);border-radius:14px;font-family:var(--sans);font-weight:500;letter-spacing:.3px;box-shadow:0 6px 24px rgba(191,115,80,.3)}
@@ -35,15 +35,16 @@
 
   /* sticky top bar with timer + CTA */
   .co-top{position:fixed;top:0;left:0;right:0;z-index:60;background:oklch(97% 0.012 72 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-  .co-top-in{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
-  .co-clock{display:inline-flex;align-items:center;gap:8px;font-weight:600;color:var(--ink)}
-  .co-clock .t{background:var(--primary-soft);color:var(--primary-dark);border-radius:8px;padding:4px 8px;font-variant-numeric:tabular-nums}
-  .co-clock small{display:block;font-size:10px;font-weight:500;color:var(--muted);letter-spacing:.5px}
+  .co-top-in{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 16px}
+  .co-clock{display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;font-weight:600;color:var(--ink)}
+  .co-clock .t{background:var(--primary-soft);color:var(--primary-dark);border-radius:8px;padding:3px 9px;font-variant-numeric:tabular-nums;font-size:16px}
+  .co-clock small{font-size:9.5px;font-weight:500;color:var(--muted);letter-spacing:.7px}
+  .co-top-brand{display:inline-flex;align-items:center;gap:7px;font-family:var(--serif);font-weight:500;font-size:17px;color:var(--ink);white-space:nowrap}
+  .co-top-brand img{height:22px;width:auto;display:block}
+  @media (max-width:400px){ .co-top-brand{font-size:0;gap:0} .co-top-brand img{height:26px} }  /* logo-only on very small screens */
   .co-top .btn-sm{background:var(--grad);color:#fff;border:none;border-radius:20px;padding:10px 18px;font-weight:500;font-size:14px;cursor:pointer;text-decoration:none;box-shadow:0 4px 14px rgba(191,115,80,.28)}
 
   .co{max-width:var(--maxw);margin:0 auto;padding:20px 20px 40px}
-  .co-brand{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--serif);font-size:20px;font-weight:500;color:var(--ink);letter-spacing:.01em;padding:6px 0 2px}
-  .co-brand img{height:24px;width:auto;display:block}
   .co h2.sec-t{font-family:var(--serif);font-size:27px;font-weight:500;letter-spacing:-.5px;text-align:center;margin:36px 0 16px}
   .co h2.sec-t .g{color:var(--primary)}
 
@@ -116,13 +117,13 @@
   <!-- sticky top -->
   <div class="co-top">
     <div class="co-top-in">
-      <span class="co-clock"><span class="t" id="clock">05:00</span><small>OFFER ENDS</small></span>
+      <span class="co-clock"><small>OFFER ENDS</small><span class="t" id="clock">05:00</span></span>
+      <span class="co-top-brand"><img src="assets/logo2.webp" alt="">Tai&nbsp;Motion</span>
       <a class="btn-sm" href="#pricing">Get my plan</a>
     </div>
   </div>
 
   <main class="co">
-    <div class="co-brand"><img src="assets/logo2.webp" alt="">Tai&nbsp;Motion</div>
     <h2 class="sec-t" id="headline">Your plan is ready</h2>
 
     <!-- before / after -->
