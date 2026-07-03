@@ -404,7 +404,7 @@
   }
 
   // Shared gate renderer: chevron rows + optional figure beside the options (matches their age gate).
-  function gateScreen(title, subtitle, rows, onPick, figureSrc) {
+  function gateScreen(title, subtitle, rows, onPick, figureSrc, showConsent) {
     const root = $("#step"); root.innerHTML = "";
     document.body.classList.remove("scr-info");
     const bar = $("#progress > i"); if (bar) bar.style.width = "0%";
@@ -430,7 +430,7 @@
     } else {
       root.appendChild(box);
     }
-    root.appendChild(el("p", "consent",
+    if (showConsent) root.appendChild(el("p", "consent",
       "By continuing you agree to our Terms of Service and Privacy Policy."));
   }
 
@@ -438,7 +438,7 @@
   function genderGate() {
     gateScreen("Chair Tai Chi Workouts", "Select your gender to get your free personalized plan",
       [["female", "Female"], ["male", "Male"]],
-      (val) => { S.gender = val; save(); ageGate(); });
+      (val) => { S.gender = val; save(); ageGate(); }, null, true);
     const sn = $("#stepno"); if (sn) sn.textContent = "#0 gender";
   }
 
