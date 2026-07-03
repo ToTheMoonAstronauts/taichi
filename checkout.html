@@ -55,7 +55,7 @@
   .ba2 .r{font-size:13px;margin-bottom:8px}
   .ba2 .r b{display:block;font-size:13px;margin-bottom:4px;color:var(--muted);font-weight:500}
   .bar{height:6px;border-radius:4px;background:var(--line);overflow:hidden}
-  .bar i{display:block;height:100%}
+  .bar i{display:block;height:100%;width:0;transition:width .9s cubic-bezier(.4,0,.2,1)}
   .bar.lo i{width:30%}.bar.mid i{width:55%}.bar.hi i{width:90%}
   .bar.red i{background:#cf7a5f}.bar.green i{background:var(--sage)}
 
@@ -128,16 +128,18 @@
         <span class="tag">BEFORE</span>
         <div class="ph" style="background-image:url(assets/checkout_before.jpg)"></div>
         <div class="rows">
-          <div class="r"><b>Energy levels</b><div class="bar lo red"><i></i></div></div>
-          <div class="r"><b>Steadiness</b><div class="bar lo red"><i></i></div></div>
+          <div class="r"><b>Energy levels</b><div class="bar red" data-w="energy-b"><i></i></div></div>
+          <div class="r"><b>Steadiness</b><div class="bar red" data-w="steady-b"><i></i></div></div>
+          <div class="r"><b>Weight</b><div class="bar red" data-w="weight-b"><i></i></div></div>
         </div>
       </div>
       <div class="card after">
         <span class="tag">AFTER</span>
         <div class="ph" style="background-image:url(assets/checkout_after.jpg)"></div>
         <div class="rows">
-          <div class="r"><b>Energy levels</b><div class="bar hi green"><i></i></div></div>
-          <div class="r"><b>Steadiness</b><div class="bar hi green"><i></i></div></div>
+          <div class="r"><b>Energy levels</b><div class="bar green" data-w="energy-a"><i></i></div></div>
+          <div class="r"><b>Steadiness</b><div class="bar green" data-w="steady-a"><i></i></div></div>
+          <div class="r"><b>Weight</b><div class="bar green" data-w="weight-a"><i></i></div></div>
         </div>
       </div>
     </div>
@@ -302,6 +304,20 @@
     }
     document.getElementById("getPlan").onclick = go;
     document.getElementById("getPlan2").onclick = go;
+
+    // Before/After bars — lightly randomized so the "promise" reads naturally.
+    // Energy & Steadiness go UP (low before → high after); Weight goes DOWN
+    // (large before → ~30% smaller after).
+    (function(){
+      const rnd = (a, b) => Math.round(a + Math.random() * (b - a));
+      const eB = rnd(20, 32), eA = rnd(84, 93);
+      const sB = rnd(18, 30), sA = rnd(82, 92);
+      const wB = rnd(86, 95), wA = Math.round(wB * 0.7);   // weight ~30% smaller after
+      const vals = { "energy-b": eB, "energy-a": eA, "steady-b": sB, "steady-a": sA, "weight-b": wB, "weight-a": wA };
+      requestAnimationFrame(() => Object.keys(vals).forEach(k => {
+        const el = document.querySelector('[data-w="' + k + '"] i'); if (el) el.style.width = vals[k] + "%";
+      }));
+    })();
   </script>
   <script src="assets/testbar.js?v=1"></script>
 </body>
