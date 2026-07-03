@@ -75,6 +75,7 @@
     setProgress();
     const scr = F.screens[S.index];
     if (!scr) { window.location.href = "checkout.html"; return; }
+    document.body.classList.toggle("scr-info", scr.type === "info");   // dark treatment for interstitials
     ({ single: rSingle, multi: rMulti, input: rInput, info: rInfo,
        loader: rLoader, email: rEmail, name: rName, goals: rGoals }[scr.type] || rInfo)(scr, root);
     window.scrollTo(0, 0);
@@ -266,10 +267,10 @@
     const box = el("div", "chartbox");
     box.innerHTML = `<svg viewBox="0 0 320 140" preserveAspectRatio="none">
       <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#5a9e6f" stop-opacity=".35"/><stop offset="1" stop-color="#5a9e6f" stop-opacity="0"/></linearGradient></defs>
+      <stop offset="0" stop-color="#bf7350" stop-opacity=".35"/><stop offset="1" stop-color="#bf7350" stop-opacity="0"/></linearGradient></defs>
       <path d="M10,30 C110,40 180,95 310,110 L310,140 L10,140 Z" fill="url(#g)"/>
-      <path d="M10,30 C110,40 180,95 310,110" fill="none" stroke="#5a9e6f" stroke-width="3"/>
-      <circle cx="10" cy="30" r="5" fill="#5a9e6f"/><circle cx="310" cy="110" r="5" fill="#ef6a6a"/>
+      <path d="M10,30 C110,40 180,95 310,110" fill="none" stroke="#bf7350" stroke-width="3"/>
+      <circle cx="10" cy="30" r="5" fill="#bf7350"/><circle cx="310" cy="110" r="5" fill="#c98a5f"/>
       </svg>
       <div class="chartlabels"><span>Now · ${now}kg</span><span>Goal · ${goal}kg</span></div>`;
     return box;
@@ -405,6 +406,7 @@
   // Shared gate renderer: chevron rows + optional figure beside the options (matches their age gate).
   function gateScreen(title, subtitle, rows, onPick, figureSrc) {
     const root = $("#step"); root.innerHTML = "";
+    document.body.classList.remove("scr-info");
     const bar = $("#progress > i"); if (bar) bar.style.width = "0%";
     const sec = $("#section"); if (sec) sec.textContent = "";
     root.appendChild(el("div", "gate-pill", "🎁 Take the quiz — get your free plan"));
