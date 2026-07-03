@@ -324,3 +324,10 @@ h1.q{font-family:var(--serif);font-size:25px;line-height:1.25;margin:8px 0 6px;f
 .testbar{position:fixed;left:12px;bottom:12px;z-index:140;background:rgba(31,42,36,.88);color:#fff;border:none;
   border-radius:20px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 .testbar:hover{background:#1f2a24}
+
+/* Green theme: retheme upsell "VIP/gold" warm-brown surfaces so nothing reads brown.
+   Brown theme keeps the originals above; these only apply under data-theme="green". */
+:root[data-theme="green"] .btn.gold{background:linear-gradient(135deg,#cba53d,#e0c159);color:#2a2a16;box-shadow:0 6px 20px rgba(203,165,61,.4)}
+:root[data-theme="green"] .vip-line .ic{background:#244a30;color:#e6c15a}
+:root[data-theme="green"] .seats .s1{background:#dbe9d5;color:#264a30}
+:root[data-theme="green"] .seats .s2{background:#244a30}
