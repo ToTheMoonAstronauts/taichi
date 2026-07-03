@@ -19,8 +19,9 @@ img{max-width:100%}
 /* ── top bar + progress ── */
 .topbar{display:flex;align-items:center;gap:12px;padding:18px 24px 0;max-width:var(--maxw);margin:0 auto}
 .topbar .back{border:none;background:none;font-size:22px;color:var(--q-muted);cursor:pointer;line-height:1;padding:4px 8px}
-.topbar .qlogo{height:24px;width:auto;display:block;flex:none}
-.topbar .section{flex:1;text-align:center;font-size:12.5px;color:var(--q-muted);font-weight:500;letter-spacing:.02em}
+.topbar .qbrand{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--serif);font-size:18px;font-weight:500;color:var(--q-ink);white-space:nowrap;letter-spacing:.01em}
+.topbar .qbrand .qlogo{height:22px;width:auto;display:block}
+.topbar .section{display:none}
 .topbar .stepno{flex:none;font-size:11px;color:var(--q-terracotta);background:oklch(94% 0.03 40);border:1px solid oklch(88% 0.04 40);border-radius:6px;padding:2px 7px;white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis}
 .progress{height:2px;background:var(--q-track);max-width:var(--maxw);margin:14px auto 0;border-radius:2px;overflow:hidden}
 .progress > i{display:block;height:100%;background:var(--grad-bar);width:0;transition:width .5s cubic-bezier(.4,0,.2,1)}
@@ -177,6 +178,7 @@ h1.q{font-family:var(--serif);font-size:23px;line-height:1.25;margin:6px 0 8px;f
 /* ── Interim / info slides: warm "mocha" — deeper than the cream pages, but not harsh ── */
 body.scr-info{background:linear-gradient(165deg,oklch(35% 0.035 48),oklch(30% 0.035 42));color:oklch(91% 0.02 78)}
 body.scr-info .topbar .section,body.scr-info .topbar .back{color:oklch(76% 0.02 65)}
+body.scr-info .topbar .qbrand{color:oklch(93% 0.02 80)}
 body.scr-info .progress{background:oklch(48% 0.03 48)}
 body.scr-info h1.q{color:oklch(94% 0.02 80)}
 body.scr-info .sub{color:oklch(80% 0.02 68)}
