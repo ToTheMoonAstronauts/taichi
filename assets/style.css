@@ -9,6 +9,12 @@
   --sans:'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   --grad:linear-gradient(135deg,#bf7350,#c4806a);
 }
+:root[data-theme="green"]{
+  --bg:#eef3ea; --ink:#1f2a24; --muted:#8a9585;
+  --primary:#4f9d63; --primary-dark:#377a49; --primary-soft:#e6f1e6;
+  --line:#dde7dc; --accent:#6f9e7a; --sage:#5f9e78; --gold:#9aa84f;
+  --grad:linear-gradient(135deg,#4f9d63,#6bb37e);
+}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{

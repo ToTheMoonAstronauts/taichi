@@ -11,6 +11,13 @@
   --grad-bar:linear-gradient(90deg,var(--q-amber),var(--q-rose));
   --shadow:0 1px 3px oklch(0% 0 0 / 0.05);
 }
+:root[data-theme="green"]{
+  --q-bg:oklch(94% 0.02 150); --q-ink:oklch(25% 0.02 155); --q-ink-light:oklch(45% 0.02 155);
+  --q-muted:oklch(62% 0.02 155); --q-amber:oklch(64% 0.09 150); --q-rose:oklch(64% 0.09 158);
+  --q-terracotta:oklch(56% 0.1 150); --q-track:oklch(88% 0.02 150); --q-border:oklch(90% 0.015 150);
+  --q-indicator:oklch(78% 0.02 150);
+  /* --grad & --grad-bar derive from the vars above, so they turn green automatically. */
+}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{font-family:var(--sans);background:var(--q-bg);color:var(--q-ink);line-height:1.5;-webkit-font-smoothing:antialiased;font-size:16px;transition:background .3s ease,color .3s ease}

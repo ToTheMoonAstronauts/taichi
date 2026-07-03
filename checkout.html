@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<script src="assets/theme.js?v=1"></script>
 <title>Chair Tai Chi — Your plan | Tai Motion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=13">
 <style>
   /* ── Warm "Her Phase Map" theme override for checkout ── */
   :root{
@@ -19,6 +20,12 @@
     --serif:'Playfair Display',Georgia,'Times New Roman',serif;
     --sans:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
     --grad:linear-gradient(135deg,#bf7350,#c4806a);
+  }
+  :root[data-theme="green"]{
+    --bg:#eef3ea; --ink:#1f2a24; --muted:#8a9585;
+    --primary:#4f9d63; --primary-dark:#377a49; --primary-soft:#e6f1e6;
+    --line:#dde7dc; --accent:#6f9e7a; --sage:#5f9e78; --gold:#9aa84f;
+    --grad:linear-gradient(135deg,#4f9d63,#6bb37e);
   }
   body{font-family:var(--sans);background:var(--bg);color:var(--ink);padding-top:66px}
 
