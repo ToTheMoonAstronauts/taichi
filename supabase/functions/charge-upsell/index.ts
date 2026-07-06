@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     if (!subscriptionId || !checkoutToken) return json({ error: 'missing checkout auth' }, 400);
 
     // authorize: token must match the base subscription's metadata
-    const base = await stripe.subscriptions.retrieve(subscriptionId);
+    const base = await stripe.subscriptions.retrieve(subscriptionId, { expand: ['discounts'] });
     if (base.metadata?.checkout_token !== checkoutToken) return json({ error: 'bad token' }, 403);
     // Capability token is only valid briefly after checkout (bounds token-exfil misuse).
     if (Date.now() / 1000 - base.created > 1800) return json({ error: 'checkout expired' }, 403);
@@ -38,6 +38,25 @@ Deno.serve(async (req) => {
     const cust = await stripe.customers.retrieve(customerId) as Stripe.Customer;
     const pm = cust.invoice_settings?.default_payment_method as string | undefined;
     if (!pm) return json({ error: 'no saved payment method' }, 400);
+
+    // TEST MODE: if the base plan used the test coupon, charge every upsell a flat $1 (exercises
+    // the off-session charge cheaply). Real customers (no test coupon) pay full price.
+    const TEST_COUPON = 'YrTxIPDR';
+    const isTest = ((base.discounts || []) as Array<Stripe.Discount | string>).some((d) => {
+      const c = (typeof d === 'string') ? undefined : (d as Stripe.Discount).coupon;
+      const id = typeof c === 'string' ? c : c?.id;
+      return id === TEST_COUPON;
+    });
+    if (isTest) {
+      const pi = await stripe.paymentIntents.create({
+        amount: 100, currency: 'usd', customer: customerId,
+        payment_method: pm, off_session: true, confirm: true,
+        metadata: { user_id: userId, upsell_id, test: '1' },
+      });
+      if (pi.status === 'succeeded') return json({ status: 'accepted' });
+      if (pi.status === 'requires_action') return json({ status: 'requires_action', clientSecret: pi.client_secret });
+      return json({ status: 'failed' });
+    }
 
     if (offer.type === 'one_time') {
       const pi = await stripe.paymentIntents.create({
