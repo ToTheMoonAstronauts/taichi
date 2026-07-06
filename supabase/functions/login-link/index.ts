@@ -23,6 +23,8 @@ Deno.serve(async (req) => {
     const sub = await stripe.subscriptions.retrieve(subscriptionId);
     if (sub.metadata?.checkout_token !== checkoutToken) return json({ error: 'bad token' }, 403);
     if (sub.status !== 'active' && sub.status !== 'trialing') return json({ error: 'not paid' }, 402);
+    // Token is only valid for auto-login briefly after checkout (matches charge-upsell TTL).
+    if (Date.now() / 1000 - sub.created > 1800) return json({ error: 'checkout expired' }, 403);
 
     const cust = await stripe.customers.retrieve(sub.customer as string) as Stripe.Customer;
     const email = (cust.email || '').trim().toLowerCase();
