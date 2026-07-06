@@ -490,3 +490,23 @@ Using a test user JWT, call `create-subscription` → confirm the PaymentIntent 
 **Carried to Plan 3:** the browser side (`pay.html` Elements consuming `clientSecret`; upsell pages consuming `charge-upsell` + SCA `requires_action`; provisioning wait on `users`; deleting `complete-order`; moving `setAutoRenew` server-side).
 
 **Execution prerequisites:** Stripe test account + `sk_test`/`pk_test`; ability to deploy Supabase functions (MCP `deploy_edge_function` or `supabase` CLI logged into `pixtozeghxwiidpnloih`); Stripe CLI for Task 7.
+
+---
+
+## Execution Log — 2026-07-06 (Stripe TEST mode, project `pixtozeghxwiidpnloih`)
+
+**All tasks executed. Status: Plan 2 COMPLETE (test mode).**
+
+- **Task 1 (Stripe objects):** DONE. 3 products + recurring prices + one-time intro coupons; 2 recurring upsell prices ($9.99/mo `essential_guides`, $19.99/mo `all_guides` — placeholder amounts, funnel gave no cycle; editable in Stripe). IDs in `../reference/stripe-config.md`.
+- **Task 2 (secrets):** DONE by user — `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` set in Supabase.
+- **Task 3–5 (functions):** DONE. `create-subscription` (jwt✓), `charge-upsell` (jwt✓), `stripe-webhook` (jwt✗) deployed + committed to `supabase/functions/`.
+- **Task 6 (webhook wiring):** DONE. Endpoint `we_1Tq6lo…` subscribes to invoice.paid, customer.subscription.**created**/updated/deleted, payment_intent.succeeded. Unsigned POST → 400 (verified).
+- **Task 7 (E2E):** PASSED — base sub → webhook set `users.subscription_status='active'` server-side; intro coupon applied ($9.99 not $49.95); `payments` recorded `initial $9.99` + `upsell:vip $4.99`; idempotency (5 events, 5 distinct); RLS self-grant still **BLOCKED**. Test data cleaned; borrowed QA user restored to `none`.
+
+**Fix surfaced by the test (applied):** initial activation originally leaned on `invoice.paid.subscription` (can be empty) → added `customer.subscription.created` handling (reliable subscription-id path) + subscribed the endpoint to it. This is the primary activation trigger now.
+
+**Known edge (note for hardening, not blocking):** if a user ever has multiple base subscriptions (e.g. an old canceled one), a late `customer.subscription.deleted` for the old sub can overwrite `users.subscription_status`. Real flow = one base sub per checkout, so not an issue now; harden later by only letting the user's current sub drive status.
+
+**Not exercised in test (coded, verify in Plan 3 via real browser):** SCA `requires_action` fallback (needs 3DS card), and `charge-upsell` recurring branch end-to-end (separate-subscription mechanism is proven; the function path itself needs a real user JWT).
+
+**Carried to Plan 3:** `pay.html` Elements consuming `clientSecret`; upsell pages calling `charge-upsell` + SCA handling; provisioning wait on `users` (Realtime/poll); delete `complete-order`; move `setAutoRenew` server-side.
