@@ -297,10 +297,10 @@
     const box = el("div", "chartbox");
     box.innerHTML = `<svg viewBox="0 0 320 140" preserveAspectRatio="none">
       <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#bf7350" stop-opacity=".35"/><stop offset="1" stop-color="#bf7350" stop-opacity="0"/></linearGradient></defs>
+      <stop offset="0" stop-color="var(--q-rose)" stop-opacity=".35"/><stop offset="1" stop-color="var(--q-rose)" stop-opacity="0"/></linearGradient></defs>
       <path d="M10,30 C110,40 180,95 310,110 L310,140 L10,140 Z" fill="url(#g)"/>
-      <path d="M10,30 C110,40 180,95 310,110" fill="none" stroke="#bf7350" stroke-width="3"/>
-      <circle cx="10" cy="30" r="5" fill="#bf7350"/><circle cx="310" cy="110" r="5" fill="#c98a5f"/>
+      <path d="M10,30 C110,40 180,95 310,110" fill="none" stroke="var(--q-rose)" stroke-width="3"/>
+      <circle cx="10" cy="30" r="5" fill="var(--q-rose)"/><circle cx="310" cy="110" r="5" fill="var(--q-terracotta)"/>
       </svg>
       <div class="chartlabels"><span>Now · ${now}kg</span><span>Goal · ${goal}kg</span></div>`;
     return box;
