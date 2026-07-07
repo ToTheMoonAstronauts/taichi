@@ -89,8 +89,10 @@ h1.q{font-family:var(--serif);font-size:25px;line-height:1.28;margin:6px 0 8px;f
   font-weight:600;font-size:15.5px;line-height:1.3;padding:14px 18px;border-radius:16px;text-align:left}
 .gate-pill .gp-ic{font-size:30px;flex:none;line-height:1}
 .gate-pill .gp-tx b{font-weight:800}
-.gate-title{font-family:var(--serif);text-transform:none;letter-spacing:-.4px;font-weight:500}
+.gate-title{font-family:var(--sans);text-transform:uppercase;letter-spacing:-.005em;font-weight:800;font-size:28px;line-height:1.14}
 .gate-opt{justify-content:space-between}
+.opts-label{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--q-muted);margin:2px 0 12px;padding-left:2px}
+.locked{pointer-events:none}
 
 /* decorative figure below options (tried_before) — sized down ~30% */
 .quiz-figure{margin:16px auto 0;max-width:168px}
@@ -189,7 +191,7 @@ h1.q{font-family:var(--serif);font-size:25px;line-height:1.28;margin:6px 0 8px;f
   padding:15px 18px;font-size:15px;font-family:var(--sans);outline:none;text-align:center;color:var(--q-ink);background:#fff;transition:border-color .2s,box-shadow .2s}
 .text-field:focus{border-color:var(--q-rose);box-shadow:0 4px 20px var(--q-sel-glow)}
 .consent{font-size:11.5px;color:var(--q-muted);text-align:center;margin:14px auto 0;max-width:400px;line-height:1.6}
-.consent a{color:var(--q-muted)}
+.consent a{color:var(--q-muted);text-decoration:underline}
 
 /* ── loader ── */
 .loader-list{max-width:400px;margin:24px auto 0}

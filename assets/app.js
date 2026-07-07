@@ -43,6 +43,7 @@
 
   // Segmented, per-section loader (Digesti-style): 3 sections, each its own segment.
   const SECS = ["My profile", "Activity", "Lifestyle"];
+  const SEL_DELAY = 450; // ms — let the tap register (show selected state) before auto-advancing
   const _secOf = (() => { let cur = 0; return F.screens.map(s => { const i = SECS.indexOf(s.section); if (i >= 0) cur = i; return cur; }); })();
   const _secLen = SECS.map((_, i) => _secOf.filter(x => x === i).length);
   const _secStart = SECS.map((_, i) => _secOf.indexOf(i));
@@ -155,10 +156,11 @@
     }
     const box = el("div", wrapCls);
     if (scr.layout === "ld") box.style.gridTemplateColumns = `repeat(${scr.options.length},1fr)`;
-    scr.options.forEach(o => box.appendChild(optRow(scr, o, false, () => {
+    scr.options.forEach(o => box.appendChild(optRow(scr, o, false, (row) => {
+      if (box.classList.contains("locked")) return;
+      box.classList.add("locked"); row.classList.add("sel");
       S.answers[scr.id] = o.value; save();
-      if (scr.safetyNote) { showSafety(scr, root); }
-      else go(1);
+      setTimeout(() => { if (scr.safetyNote) { showSafety(scr, root); } else go(1); }, SEL_DELAY);
     })));
     root.appendChild(box);
     if (scr.figure) {
@@ -413,7 +415,7 @@
   }
 
   // Shared gate renderer: chevron rows + optional figure beside the options (matches their age gate).
-  function gateScreen(title, subtitle, rows, onPick, figureSrc, showConsent, showPill) {
+  function gateScreen(title, label, rows, onPick, figureSrc, showConsent, showPill) {
     const root = $("#step"); root.innerHTML = "";
     document.body.classList.remove("scr-info");
     document.querySelectorAll("#progress .seg > i").forEach(i => i.style.width = "0%");
@@ -425,13 +427,17 @@
       root.appendChild(pill);
     }
     root.appendChild(el("h1", "q gate-title", title));
-    if (subtitle) root.appendChild(el("p", "sub", subtitle));
     const box = el("div", "opts");
-    rows.forEach(([val, label]) => {
+    if (label) box.appendChild(el("div", "opts-label", label));
+    rows.forEach(([val, lbl]) => {
       const row = el("button", "opt gate-opt");
-      row.appendChild(el("span", "lab", label));
+      row.appendChild(el("span", "lab", lbl));
       row.appendChild(el("span", "chev", "›"));
-      row.onclick = () => onPick(val);
+      row.onclick = () => {
+        if (box.classList.contains("locked")) return;
+        box.classList.add("locked"); row.classList.add("sel");
+        setTimeout(() => onPick(val), SEL_DELAY);
+      };
       box.appendChild(row);
     });
     if (figureSrc) {
@@ -444,23 +450,22 @@
     } else {
       root.appendChild(box);
     }
-    if (showConsent) root.appendChild(el("p", "consent",
-      "By continuing you agree to our Terms of Service and Privacy Policy."));
+    if (showConsent) {
+      const c = el("p", "consent");
+      c.innerHTML = 'By choosing your age and continuing you agree to our ' +
+        '<a href="terms-of-services.html">Terms of Service</a> | ' +
+        '<a href="privacy-policy.html">Privacy Policy</a>. Please review before continuing';
+      root.appendChild(c);
+    }
   }
 
-  // ---- gender gate (very first screen of the quiz) ----
-  function genderGate() {
-    gateScreen("Chair Tai Chi Workouts", "Select your gender to get your free personalized plan",
-      [["female", "Female"], ["male", "Male"]],
-      (val) => { S.gender = val; save(); ageGate(); }, "assets/wm.jpg", true, true);
-    const sn = $("#stepno"); if (sn) sn.textContent = "#0 gender";
-  }
+  // (gender gate removed — funnel is female-only; age is the first gate)
 
   // ---- age gate (second screen of the quiz) ----
   function ageGate() {
-    gateScreen("Select Your Age", "",
-      [["40-49", "Age 40–49"], ["50-59", "Age 50–59"], ["60-69", "Age 60–69"], ["70-80", "Age 70–80"]],
-      (val) => { S.age_band = val; S.index = 0; S.status = "in_progress"; save(); render(); }, "assets/1_age.webp", false, false);
+    gateScreen("Chair Tai Chi Workouts", "Select your age",
+      [["40-49", "40-49"], ["50-59", "50-59"], ["60-69", "60-69"], ["70-80", "70-80"]],
+      (val) => { S.age_band = val; S.index = 0; S.status = "in_progress"; save(); render(); }, "assets/1_age.webp", true, true);
     const sn = $("#stepno"); if (sn) sn.textContent = "#1 age";
   }
 
@@ -470,8 +475,7 @@
     const qp = new URLSearchParams(location.search);
     const ages = ["40-49", "50-59", "60-69", "70-80"];
     S = window.CTC ? (window.CTC.reset(), window.CTC.get()) : S;
-    const gq = (qp.get("gender") || "").toLowerCase();
-    S.gender = (gq === "male" || gq === "female") ? gq : (Math.random() < 0.5 ? "female" : "male");
+    S.gender = "female"; // female-only funnel
     S.age_band = ages[Math.floor(Math.random() * ages.length)];
     S.funnel = "chair-taichi"; S.status = "checkout";
     S.height_cm = 158 + Math.floor(Math.random() * 22);
@@ -502,8 +506,7 @@
 
   // ---- back button + boot ----
   const back = $("#back"); if (back) back.onclick = () => {
-    if (!S.gender) { window.location.href = "index.html"; return; }
-    if (!S.age_band) { S.gender = null; save(); genderGate(); return; }
+    if (!S.age_band) { window.location.href = "index.html"; return; }
     if (S.index === 0) { S.age_band = null; save(); ageGate(); return; }
     go(-1);
   };
@@ -514,5 +517,5 @@
   }
   if (_qp.get("autotest") !== null || _qp.get("test") !== null || _qp.get("funnel") === "test"
       || _qp.get("step") !== null || _qp.get("goto") !== null) autotestFill();
-  else if (!S.gender) genderGate(); else if (!S.age_band) ageGate(); else render();
+  else { S.gender = "female"; save(); if (!S.age_band) ageGate(); else render(); }  // female-only: gender step removed
 })();
