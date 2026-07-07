@@ -88,11 +88,11 @@ Deno.serve(async (req) => {
       case 'payment_intent.succeeded': {
         const pi = event.data.object as Stripe.PaymentIntent;
         if (pi.metadata?.upsell_id) {
-          await db.from('payments').insert({
+          await db.from('payments').upsert({
             id: pi.id, user_id: pi.metadata.user_id, amount: (pi.amount_received ?? 0) / 100,
             currency: pi.currency, kind: 'upsell:' + pi.metadata.upsell_id, status: 'succeeded',
             raw: pi as unknown as Record<string, unknown>,
-          });
+          }, { onConflict: 'id', ignoreDuplicates: true });
           const email = await emailForUser(db, pi.metadata.user_id);
           const amt = ((pi.amount_received ?? 0) / 100).toFixed(2);
           const tag = pi.metadata.test === '1' ? ' _(test)_' : '';
