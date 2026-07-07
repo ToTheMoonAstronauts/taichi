@@ -101,8 +101,8 @@
     document.body.classList.toggle("scr-info", scr.type === "info");   // dark treatment for interstitials
     // Interim screens (info / loader) are full-bleed like Digesti — no progress bar, section label or back.
     const _interim = scr.type === "info" || scr.type === "loader";
-    { const pr = $("#progress"); if (pr) pr.style.display = _interim ? "none" : "";
-      const sc = $("#section"); if (sc) sc.style.display = _interim ? "none" : "";
+    { const pr = $("#progress"); if (pr) pr.style.display = _interim ? "none" : "flex";
+      const sc = $("#section"); if (sc) sc.style.display = _interim ? "none" : "block";  // section label default is CSS none, so set block explicitly
       const bk = $("#back"); if (bk) bk.style.display = _interim ? "none" : ""; }
     ({ single: rSingle, multi: rMulti, input: rInput, info: rInfo,
        loader: rLoader, email: rEmail, name: rName, goals: rGoals }[scr.type] || rInfo)(scr, root);
