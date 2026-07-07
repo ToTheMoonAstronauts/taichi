@@ -72,21 +72,29 @@
   .bar.lo i{width:30%}.bar.mid i{width:55%}.bar.hi i{width:90%}
   .bar.red i{background:#cf7a5f}.bar.green i{background:var(--sage)}
 
-  /* summary card */
-  .sum{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-top:8px;box-shadow:var(--shadow)}
-  .sum h3{font-family:var(--serif);font-weight:500;margin:0 0 4px;font-size:21px;text-align:center}
-  .sum .lead{color:var(--muted);font-size:14px;text-align:center;margin:0 0 16px}
-  .sum .item{border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-top:10px}
-  .sum .item .h{display:flex;align-items:center;justify-content:space-between;font-weight:500;font-size:15px}
-  .sum .item .h .v{color:var(--primary);font-weight:600}
-  .bmi-track{position:relative;height:10px;border-radius:6px;margin:14px 4px 6px;
-    background:linear-gradient(90deg,#7fb0c4,#6f9e7a 40%,#d9b46a 70%,#cf7a5f)}
-  .bmi-track .mk{position:absolute;top:-5px;width:3px;height:20px;background:var(--ink);border-radius:2px;transform:translateX(-50%)}
+  /* summary card — Digesti-style stressed status cards */
+  .sum{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px;margin-top:8px;box-shadow:var(--shadow)}
+  .sum h3{font-family:var(--serif);font-weight:500;margin:0 0 8px;font-size:22px;text-align:center}
+  .sum .lead{color:var(--ink);font-size:14.5px;line-height:1.5;text-align:center;margin:0 auto 14px;max-width:340px}
+  .sum-card{border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-top:12px;background:var(--card)}
+  .sc-head{display:flex;align-items:center;gap:9px;font-weight:600;font-size:15.5px}
+  .sc-head .sc-ic{font-size:19px;line-height:1}
+  .sc-head .sc-t{flex:1}
+  .sc-big{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1;white-space:nowrap}
+  .sc-big.red{color:#d0453a}
+  .sc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+  .rec-tag{background:var(--primary-soft);color:var(--primary-dark);font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 9px;border-radius:8px;text-transform:uppercase;white-space:nowrap}
+  .stress-alert{display:flex;align-items:center;gap:8px;margin-top:12px;background:#fdecec;color:#c0392b;border-radius:10px;padding:10px 12px;font-size:14px}
+  .stress-alert b{color:#c0392b}
+  .stress-alert .sa-ic{color:#d0453a;font-weight:700}
+  .bmi-track{position:relative;height:10px;border-radius:6px;margin:36px 8px 8px;
+    background:linear-gradient(90deg,#4a90d9,#5bbf6a 35%,#e8c14a 65%,#e0603a)}
+  .bmi-track .mk{position:absolute;top:50%;transform:translate(-50%,-50%);width:15px;height:15px;background:#fff;border:3px solid #e8622a;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .bmi-bub{position:absolute;top:-28px;transform:translateX(-50%);background:#e8622a;color:#fff;font-size:12.5px;font-weight:600;padding:4px 9px;border-radius:8px;white-space:nowrap}
+  .bmi-bub:after{content:"";position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);border:5px solid transparent;border-top-color:#e8622a;border-bottom:0}
   .bmi-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin:0 2px}
-  .sum .item .v.red{color:#c0603f}
-  .meta-alert{margin-top:10px;background:var(--primary-soft);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px}
-  .meta-alert .mi{color:var(--primary);font-weight:600}
-  .glasses{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:22px}
+  .bmi-scale .on{color:var(--ink);font-weight:700}
+  .glasses{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;font-size:24px}
   .note{color:var(--muted)}
 
   /* pricing */
@@ -161,29 +169,29 @@
     <!-- personal summary -->
     <div class="sum">
       <h3>Your personal summary</h3>
-      <p class="lead">Based on your answers, here's a quick snapshot to guide your plan.</p>
+      <p class="lead">Based on your quiz answers, it looks like you might have an <b>increased metabolic age</b>, which can lead to <b>excess body weight</b>.</p>
 
-      <div class="item" id="bmiItem">
-        <div class="h"><span>Current BMI</span><span class="v" id="bmiVal">—</span></div>
-        <div class="bmi-track"><span class="mk" id="bmiMk" style="left:50%"></span></div>
-        <div class="bmi-scale"><span>Underweight</span><span>Healthy</span><span>Overweight</span><span>Higher</span></div>
-        <div class="note" id="bmiCat" style="margin-top:8px"></div>
+      <div class="sum-card" id="bmiItem">
+        <div class="sc-head"><span class="sc-ic">⚖️</span><span class="sc-t">Current BMI</span></div>
+        <div class="bmi-track"><span class="bmi-bub" id="bmiBub" style="left:50%">You — <b id="bmiVal">—</b></span><span class="mk" id="bmiMk" style="left:50%"></span></div>
+        <div class="bmi-scale"><span>Underweight</span><span>Healthy</span><span>Overweight</span><span>Obese</span></div>
+        <div class="stress-alert"><span class="sa-ic">ⓘ</span> Your weight category: <b id="bmiCat">—</b></div>
       </div>
 
-      <div class="item">
-        <div class="h"><span>Metabolic age</span><span class="v red" id="metaVal">—</span></div>
-        <div class="meta-alert"><span class="mi">ⓘ</span> Your metabolism is: <b>Slow</b></div>
+      <div class="sum-card">
+        <div class="sc-head"><span class="sc-ic">⏳</span><span class="sc-t">Metabolic age</span><span class="sc-big red" id="metaVal">—</span></div>
+        <div class="stress-alert"><span class="sa-ic">ⓘ</span> Your metabolism is: <b>Slow</b></div>
       </div>
 
-      <div class="item">
-        <div class="h"><span>Recommended session length</span><span class="v">7 min/day</span></div>
-        <div class="note" style="margin-top:6px">Short, gentle daily practice to start — easy to keep up.</div>
+      <div class="sum-card">
+        <div class="sc-head"><span class="sc-ic">⏰</span><span class="sc-t">Personalized Chair Tai Chi plan</span></div>
+        <div class="sc-row"><span class="sc-big">7 min</span><span class="rec-tag">Recommended duration</span></div>
       </div>
 
-      <div class="item">
-        <div class="h"><span>Daily water</span><span class="v">~6–8 glasses</span></div>
-        <div class="glasses">💧💧💧💧💧💧💧💧</div>
-        <div class="note" style="margin-top:4px">Stay hydrated when you move — a simple habit that helps.</div>
+      <div class="sum-card">
+        <div class="sc-head"><span class="sc-ic">💧</span><span class="sc-t">Water intake</span></div>
+        <div class="glasses">🥛🥛🥛🥛🥛🥛🥛🥛</div>
+        <div class="sc-row"><span class="sc-big">6–8 glasses</span><span class="rec-tag">Recommended daily intake</span></div>
       </div>
     </div>
 
@@ -268,11 +276,14 @@
       const bmi = session.bmi;
       if (bmi) {
         document.getElementById("bmiVal").textContent = bmi;
-        // map BMI ~16..40 to 0..100%
-        const pct = Math.max(2, Math.min(98, ((bmi - 16) / (40 - 16)) * 100));
+        const pct = Math.max(4, Math.min(96, ((bmi - 16) / (40 - 16)) * 100));
         document.getElementById("bmiMk").style.left = pct + "%";
-        const cat = bmi < 18.5 ? "Underweight" : bmi < 25 ? "Healthy range" : bmi < 30 ? "Overweight" : "Higher range";
-        document.getElementById("bmiCat").textContent = "Your category: " + cat + ". A gentle, steady routine is a good fit.";
+        document.getElementById("bmiBub").style.left = pct + "%";
+        const idx = bmi < 18.5 ? 0 : bmi < 25 ? 1 : bmi < 30 ? 2 : 3;
+        const cat = ["Underweight", "Healthy", "Overweight", "Obese"][idx];
+        document.getElementById("bmiCat").textContent = cat;
+        const labels = document.querySelectorAll("#bmiItem .bmi-scale span");
+        if (labels[idx]) labels[idx].classList.add("on");
       } else {
         document.getElementById("bmiItem").style.display = "none";
       }
@@ -283,7 +294,9 @@
       const band = String(session.age_band || "");
       const nums = (band.match(/\d+/g) || []).map(Number);
       const upper = nums.length ? Math.max.apply(null, nums) : 47;
-      document.getElementById("metaVal").textContent = (upper + 2) + " years";
+      const bmi = session.bmi || 0;
+      const bump = bmi >= 30 ? 12 : bmi >= 25 ? 8 : 4;
+      document.getElementById("metaVal").textContent = (upper + bump) + " years";
     })();
 
     function renderPlans() {
