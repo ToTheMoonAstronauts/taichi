@@ -38,8 +38,11 @@
   .plan.sel{border-color:var(--primary);background:var(--primary-soft)}
   .plan .radio{border:2px solid var(--line)}
   .plan.sel .radio{border-color:var(--primary);background:radial-gradient(circle at center,#fff 0 4px,var(--primary) 5px)}
-  .plan .name{font-family:var(--serif);font-weight:500;font-size:19px}
-  .plan .perday{font-family:var(--serif);font-weight:500}
+  .plan .name{font-family:var(--sans);font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+  .plan .perday{font-family:var(--sans);font-weight:700;font-variant-numeric:tabular-nums;font-size:15.5px}
+  .plan .pn{font-variant-numeric:tabular-nums}
+  .plan .old{color:var(--muted);text-decoration:line-through;font-size:13px;margin-right:6px}
+  .plan .now{font-weight:700;font-size:15px}
   .popular{background:#e8622a;border-radius:20px}
 
   /* sticky top bar with timer + CTA */
@@ -94,7 +97,8 @@
   .bmi-bub:after{content:"";position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);border:5px solid transparent;border-top-color:#e8622a;border-bottom:0}
   .bmi-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin:0 2px}
   .bmi-scale .on{color:var(--ink);font-weight:700}
-  .glasses{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;font-size:24px}
+  .glasses{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+  .wg{width:15px;height:21px;border:1.5px solid #a9cbe6;border-top-width:1px;border-radius:2px 2px 6px 6px;background:linear-gradient(to top,#6cbcf0 0,#8fcdf3 60%,#eaf5fd 60%,#eaf5fd 100%)}
   .note{color:var(--muted)}
 
   /* pricing */
@@ -200,7 +204,7 @@
 
       <div class="sum-card">
         <div class="sc-head"><span class="sc-ic">💧</span><span class="sc-t">Water intake</span></div>
-        <div class="glasses">🥛🥛🥛🥛🥛🥛🥛🥛</div>
+        <div class="glasses"><span class="wg"></span><span class="wg"></span><span class="wg"></span><span class="wg"></span><span class="wg"></span><span class="wg"></span><span class="wg"></span><span class="wg"></span></div>
         <div class="sc-row"><span class="sc-big">6–8 glasses</span><span class="rec-tag">Recommended daily intake</span></div>
       </div>
     </div>
@@ -213,7 +217,7 @@
     </div>
     <div class="plans-slot"></div>
     <div class="twox"><span class="ic">💪</span><div>People using the plan for <b>12 weeks</b> achieve <b>double the results</b> as for 4 weeks<small>*Based on Tai Motion member results</small></div></div>
-    <p class="guarantee">🛡️ 30-day money-back guarantee</p>
+    <p class="guarantee">🔒 Secure checkout · Cancel anytime in your account</p>
     <div class="cta-bar" style="position:static;background:none;padding:0 0 8px">
       <div class="cta-inner"><button class="btn" id="getPlan">Get my plan</button></div>
     </div>
@@ -229,11 +233,6 @@
         <img src="assets/checkout-mens-health.webp" alt="Men's Health">
         <img src="assets/checkout-shape.webp" alt="Shape">
       </div>
-    </div>
-
-    <!-- trust (neutral, no false press claims) -->
-    <div class="press">
-      <span>Gentle &amp; low-impact</span><span>Perfect for 40+</span><span>Follow along at home</span><span>Cancel anytime</span>
     </div>
 
     <!-- success stories (illustrative; original copy) -->
@@ -282,14 +281,14 @@
     </div>
     <div class="plans-slot"></div>
     <div class="twox"><span class="ic">💪</span><div>People using the plan for <b>12 weeks</b> achieve <b>double the results</b> as for 4 weeks<small>*Based on Tai Motion member results</small></div></div>
-    <p class="guarantee">🛡️ 30-day money-back guarantee</p>
+    <p class="guarantee">🔒 Secure checkout · Cancel anytime in your account</p>
     <div class="cta-bar" style="position:static;background:none;padding:0 0 8px">
       <div class="cta-inner"><button class="btn" id="getPlan2">Get my plan</button></div>
     </div>
 
     <div class="mbg">
-      <h4>100% Money-Back Guarantee</h4>
-      <p>We're confident in the quality of our program and the results it can help you achieve. If you don't see visible results within the first 30 days, you're eligible for a refund under our Subscription &amp; Refund Policy. Please note you may be asked to show that you followed the program.</p>
+      <h4>Cancel anytime</h4>
+      <p>You can cancel from your account at any time to stop future renewals. Your introductory price and renewal terms are shown above. Billing, automatic renewals and our refund terms are set out in our <a href="refund-policy.html" target="_blank" rel="noopener">Subscription &amp; Refund Policy</a> — please review before ordering.</p>
     </div>
   </main>
 
@@ -342,7 +341,7 @@
           ${p.popular ? '<span class="popular">MOST POPULAR</span>' : ""}
           <span class="radio"></span>
           <span class="pn"><span class="name">${p.name}</span><br>
-            <span class="old">$${p.old}</span><span>$${p.intro}</span></span>
+            <span class="old">$${p.old}</span><span class="now">$${p.intro}</span></span>
           <span class="perday">$${p.perday}<small>per day</small></span>
         </div>`).join("");
       document.querySelectorAll(".plans-slot").forEach(slot => slot.innerHTML = html);
