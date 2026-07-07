@@ -59,6 +59,8 @@
     });
     const sec = $("#section"); if (sec) { sec.textContent = SECS[si] || ""; sec.style.display = "block"; }
     const qb = $(".qbrand"); if (qb) qb.style.display = "none";
+    const pr = $("#progress"); if (pr) pr.style.display = "";
+    const bk = $("#back"); if (bk) bk.style.display = "";
     const sn = $("#stepno"); if (sn) sn.textContent = scr ? ("#" + (idx + 2) + " " + scr.id) : "";
   }
 
@@ -419,8 +421,10 @@
     const root = $("#step"); root.innerHTML = "";
     document.body.classList.remove("scr-info");
     document.querySelectorAll("#progress .seg > i").forEach(i => i.style.width = "0%");
-    const sec = $("#section"); if (sec) { sec.textContent = "My profile"; sec.style.display = "block"; }
-    const qb = $(".qbrand"); if (qb) qb.style.display = "none";
+    const sec = $("#section"); if (sec) sec.style.display = "none";
+    const qb = $(".qbrand"); if (qb) qb.style.display = "inline-flex";
+    const pr = $("#progress"); if (pr) pr.style.display = "none";   // no loader on the age gate
+    const bk = $("#back"); if (bk) bk.style.display = "none";        // centered logo, like the reference
     if (showPill) {
       const pill = el("div", "gate-pill");
       pill.innerHTML = '<span class="gp-ic">🎁</span><span class="gp-tx">Take the quiz — get your <b>PDF Guide!</b></span>';
@@ -453,8 +457,8 @@
     if (showConsent) {
       const c = el("p", "consent");
       c.innerHTML = 'By choosing your age and continuing you agree to our ' +
-        '<a href="terms-of-services.html">Terms of Service</a> | ' +
-        '<a href="privacy-policy.html">Privacy Policy</a>. Please review before continuing';
+        '<a href="terms-of-services.html" target="_blank" rel="noopener">Terms of Service</a> | ' +
+        '<a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>. Please review before continuing';
       root.appendChild(c);
     }
   }
