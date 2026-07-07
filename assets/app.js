@@ -36,6 +36,17 @@
   // ---- helpers ----
   const $ = (s, r = document) => r.querySelector(s);
   const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.innerHTML = h; return e; };
+  const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const mdInline = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  // Render a body string into paragraphs (split on blank lines), with **bold** and muted "Source:" lines.
+  function richBody(text) {
+    const frag = document.createDocumentFragment();
+    personalize(text).split(/\n\n+/).forEach((p) => {
+      p = p.trim(); if (!p) return;
+      frag.appendChild(el("p", /^Source:/i.test(p) ? "info-source" : "info-body", mdInline(p)));
+    });
+    return frag;
+  }
   function toCm(v, u) { return u === "ft" ? Math.round(v * 30.48) : v; }      // v in ft (decimal) -> cm
   function toKg(v, u) { return u === "lb" ? +(v / 2.20462).toFixed(1) : v; }
   function bmi() { if (!S.height_cm || !S.weight_kg) return null; const m = S.height_cm / 100; return +(S.weight_kg / (m * m)).toFixed(1); }
@@ -255,7 +266,7 @@
       root.appendChild(imgEl("info-photo", "info-" + scr.id, 800, 500));
     }
     if (!scr.headerTop) addTitle();
-    if (scr.body) root.appendChild(el("p", "info-body", personalize(scr.body)));
+    if (scr.body) root.appendChild(richBody(scr.body));
     if (scr.bullets) {
       const ul = el("ul", "bullets"); scr.bullets.forEach(b => ul.appendChild(el("li", "", b))); root.appendChild(ul);
     }
@@ -263,7 +274,7 @@
     if (scr.blockTitle || scr.blockBody) {
       const card = el("div", "info-block");
       if (scr.blockTitle) card.appendChild(el("div", "ib-title", personalize(scr.blockTitle)));
-      if (scr.blockBody) card.appendChild(el("div", "ib-body", personalize(scr.blockBody)));
+      if (scr.blockBody) card.appendChild(el("div", "ib-body", mdInline(personalize(scr.blockBody))));
       root.appendChild(card);
     }
     ctaBar("Continue", () => go(1));
@@ -326,7 +337,7 @@
         const im = document.createElement("img"); im.src = scr.image; im.alt = ""; w.appendChild(im); root.appendChild(w);
       }
       root.appendChild(el("h1", "q", personalize(scr.title || "")));
-      root.appendChild(el("p", "info-body", personalize(scr.body)));
+      root.appendChild(richBody(scr.body));
       const barWrap = el("div", "auto-bar"); const bar = el("i"); barWrap.appendChild(bar); root.appendChild(barWrap);
       requestAnimationFrame(() => { bar.style.transition = "width " + per + "ms linear"; bar.style.width = "100%"; });
       setTimeout(() => go(1), per);

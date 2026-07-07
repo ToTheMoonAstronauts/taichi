@@ -20,7 +20,7 @@ window.FUNNEL = {
 
     { id: "intro_encourage", type: "info", image: "assets/3.webp",
       title: "You'll do fantastic!",
-      body: "Chair Tai Chi is a gentle and effective fitness option. You'll get in shape at home using only a chair — sooner than you might think!" },
+      body: "Chair Tai Chi is a gentle and effective fitness option.\n\nYou'll **get in shape at home using only a chair** — sooner than you might think!" },
 
     { id: "focus_areas", type: "multi", section: "My profile", photos: true,
       q: "To start, tell us which areas you'd like to focus on:", sub: "Choose all that apply",
@@ -33,7 +33,7 @@ window.FUNNEL = {
 
     { id: "intro_solution", type: "info", personalize: true, image: "assets/5.webp",
       title: "We've got just the solution!",
-      body: "For {genderPlural} in their {decade}, Chair Tai Chi is an excellent way to slim down with minimal effort — around 10–15 minutes a day to see first changes." },
+      body: "For {genderPlural} in their {decade}, Chair Tai Chi is an excellent option to **slim down with minimal effort**.\n\n10–15 minutes a day to see first changes." },
 
     { id: "body_now", type: "single", section: "My profile", layout: "cards",
       q: "How would you describe your body?",
@@ -67,7 +67,7 @@ window.FUNNEL = {
 
     { id: "intro_smallchange", type: "loader", per: 3000, image: "assets/bodies_2b.jpg",
       title: "Losing just 5% of your weight can improve your health",
-      body: "Even a small, steady change can lower your risk of many common health conditions — and Chair Tai Chi makes it easy to start. Source: American Heart Association (AHA)." },
+      body: "Even a small, steady change can lower your risk of many common health conditions — and Chair Tai Chi makes it easy to start.\n\nSource: American Heart Association (AHA)." },
 
     { id: "projection_1", type: "info", image: "assets/13.webp", headerTop: true,
       title: "We predict you'll hit {goal}kg by {projdate}",
@@ -76,7 +76,7 @@ window.FUNNEL = {
 
     { id: "intro_plan", type: "info", personalize: true, image: "assets/14.webp",
       title: "A goal without a plan is just a wish",
-      body: "{genderPlural} in their {decade} may need an approach tailored to their unique needs. Tell us a little more about you so we can build a Chair Tai Chi Workout Plan that's right for you!" },
+      body: "{genderPlural} in their {decade} may need an approach **tailored to their unique needs**.\n\nTell us a little more about you so we can build a Chair Tai Chi Workout Plan that's right for you!" },
 
     // ===================== Activity =====================
     { id: "last_in_shape", type: "single", section: "Activity",
@@ -107,7 +107,7 @@ window.FUNNEL = {
 
     { id: "intro_effective", type: "info", image: "assets/18.webp",
       title: "Chair Tai Chi: as effective as it is gentle",
-      body: "Slow, mindful movement makes a real difference. Chair Tai Chi helps you feel healthier, build steady strength, and support your balance and mobility — with none of the strain of high-impact workouts." },
+      body: "Slow, mindful movement makes a real difference. Chair Tai Chi helps you **feel healthier, build steady strength, and support your balance and mobility** — with none of the strain of high-impact workouts." },
 
     { id: "relate_breath", type: "single", section: "Activity", layout: "ld", cardImg: "assets/19_stairs.webp",
       q: "Do you relate to the following statement?",
@@ -137,7 +137,7 @@ window.FUNNEL = {
 
     { id: "intro_lowimpact", type: "info", image: "assets/24.webp",
       title: "Chair Tai Chi eases strain on knees and back",
-      body: "It's a low-impact, moderate-intensity exercise that minimises stress on joints like the hips, knees and ankles — a gentle, safer choice if you're prone to aches or joint pain." },
+      body: "Chair Tai Chi is a low-impact, moderate-intensity exercise. It minimises stress on joints such as the hips, knees, and ankles.\n\nThis makes it safer than high-impact workouts — an **excellent choice if you're prone to aches or joint pain.**" },
 
     { id: "where_exercise", type: "multi", section: "Activity",
       q: "Where do you prefer to exercise?", sub: "Choose all that apply",
@@ -146,7 +146,7 @@ window.FUNNEL = {
 
     { id: "intro_home", type: "info", image: "assets/26.webp",
       title: "Discover the benefits of at-home fitness",
-      body: "Chair Tai Chi turns your home into a calming space for practice. All you need is a sturdy chair — it builds strength, balance and focus, so you can move freely even on quieter days." },
+      body: "Chair Tai Chi turns your home into a calming space for practice. All you need is a sturdy chair.\n\nIt builds **strength, balance and focus**, so you can move freely — even on quieter days." },
 
     { id: "steps_need", type: "single", section: "Activity",
       q: "How many steps do you think you need in a day?",
@@ -157,7 +157,7 @@ window.FUNNEL = {
 
     { id: "intro_lowdose", type: "info", image: "assets/28.webp",
       title: 'Myth: "You need to be flexible to do Tai Chi"',
-      body: "This common belief stops many people from ever starting. Chair Tai Chi proves it wrong — it's designed for every flexibility level and builds strength, balance and focus gradually, right from your chair at home." },
+      body: "Surprisingly, this common belief stops many people from even trying Tai Chi workouts.\n\n**Chair Tai Chi proves this wrong.** It's designed for all flexibility levels and helps you build strength, balance, and focus gradually — right from the comfort of your chair at home." },
 
     // like / dislike series (image card + 👎/😐/👍)
     { id: "ld_mobility", type: "single", section: "Activity", layout: "ld", cardImg: "assets/29.webp",
@@ -175,7 +175,7 @@ window.FUNNEL = {
 
     { id: "projection_2", type: "info", image: "assets/33.webp", full: true,
       title: "You'll achieve your dream body even sooner than expected!",
-      body: "We predict you'll be {goal}kg by {projdate}. Next, tell us more about your lifestyle so we can help you hit your goal even more effectively." },
+      body: "We predict you'll be {goal}kg by {projdate}.\n\nNext, tell us more about your lifestyle so we can help you hit your goal even more effectively." },
 
     // ===================== Lifestyle =====================
     { id: "tension", type: "single", section: "Lifestyle",
@@ -186,7 +186,7 @@ window.FUNNEL = {
 
     { id: "intro_stress", type: "info", image: "assets/35.webp", full: true,
       title: "Reduce stress and feel calmer with Chair Tai Chi",
-      body: "Just a short daily practice of mindful movement and steady breathing can ease tension and lift your mood, focus and emotional resilience." },
+      body: "Just a short daily practice of mindful movement and steady breathing can ease tension — improving your **mood, focus, and emotional resilience.**" },
 
     { id: "water", type: "single", section: "Lifestyle",
       q: "What is your daily water intake?", sub: "It's important to consume enough fluid when exercising",
@@ -203,7 +203,7 @@ window.FUNNEL = {
 
     { id: "intro_focus", type: "info", image: "assets/38.webp", full: true,
       title: "Feel calmer and more focused in a few short weeks",
-      body: "Chair Tai Chi supports healthy brain circulation and steadier energy — helping you feel sharper, more motivated and emotionally steady." },
+      body: "Chair Tai Chi boosts brain circulation and improves energy balance — helping you feel **sharper, more motivated, and emotionally steady.**" },
 
     { id: "rested", type: "single", section: "Lifestyle",
       q: "How often do you wake up feeling rested?",
@@ -218,7 +218,7 @@ window.FUNNEL = {
 
     { id: "intro_sleep", type: "info", image: "assets/41.webp",
       title: "Chair Tai Chi can support better, deeper sleep",
-      body: "A gentle daily practice helps you fall asleep more easily and get deeper, more restorative sleep — so you wake up refreshed and ready for the day." },
+      body: "Regular **Chair Tai Chi helps you fall asleep faster** and get deeper, more restorative sleep — so you wake up refreshed and ready for the day." },
 
     { id: "diet", type: "multi", section: "Lifestyle",
       q: "Are you currently following a specific dietary pattern?", sub: "Choose all that apply",
@@ -234,7 +234,7 @@ window.FUNNEL = {
 
     { id: "intro_nutrition", type: "info", image: "assets/43b.jpg",
       title: "Support your metabolism for lasting results",
-      body: "You'll also get a personalized nutrition plan that supports your energy, health and long-term progress — without strict diets or food restrictions." },
+      body: "You'll also get a personalized nutrition plan that supports your energy, health, and long-term progress — **without strict diets or food restrictions.**" },
 
     { id: "cravings", type: "multi", section: "Lifestyle",
       q: "What foods do you crave most often?", sub: "Choose all that apply",
@@ -256,7 +256,7 @@ window.FUNNEL = {
 
     { id: "intro_brain", type: "info", image: "assets/47c.jpg",
       title: "Look after your brain, not just your body",
-      body: "Regular gentle movement supports healthy brain circulation and sharper memory as we age. A short daily routine is one of the simplest ways to care for your mind for the years ahead." },
+      body: "Regular gentle movement supports healthy brain circulation and sharper memory as we age.\n\nA short daily routine is one of the simplest ways to **care for your mind** for the years ahead." },
 
     // ===================== Health & Safety =====================
     { id: "medications", type: "single", section: "Lifestyle",
@@ -270,7 +270,7 @@ window.FUNNEL = {
 
     { id: "intro_safe", type: "info", image: "assets/bg_1.jpg",
       title: "Prioritizing your health and safety",
-      body: "Always adapt movements to suit your body. We recommend checking with your doctor or physical therapist before starting a new activity that may affect your physical wellbeing or overall health." },
+      body: "Always adapt movements to suit your body.\n\nWe recommend checking with your doctor or physical therapist before starting a new activity that may affect your physical wellbeing or overall health." },
 
     { id: "menopause", type: "single", section: "Lifestyle", femaleOnly: true,
       q: "Have you gone through menopause?", sub: "Hormonal changes can impact your metabolism and nutritional needs.",
@@ -280,7 +280,7 @@ window.FUNNEL = {
 
     { id: "intro_menopause_weight", type: "info", image: "assets/57b.png", femaleOnly: true,
       title: "Weight loss at every stage of life",
-      body: "Menopause can make weight harder to manage — hormonal changes affect how your body stores fat and handles energy. Chair Tai Chi and personalized nutrition can help with these changes, making your weight and wellness goals easier to achieve." },
+      body: "Menopause can make losing weight harder — hormonal changes affect fat storage and insulin sensitivity. Chair Tai Chi and personalized nutrition can help with these changes.\n\nThis makes **weight loss** and **wellness goals** easier to achieve." },
 
     // ===================== Plan generation (mid-funnel loader) =====================
     { id: "loader", type: "loader", title: "Just a moment...", sub: "Getting things ready for you", per: 1600,
@@ -298,11 +298,11 @@ window.FUNNEL = {
 
     { id: "intro_goodhands", type: "info", image: "assets/seniors_02.jpg",
       title: "You're in good hands",
-      body: "Let us take care of you while you take care of yourself. We're here for you all along the way." },
+      body: "Let us take care of you while you take care of yourself.\n\nWe're here for you all along the way." },
 
     { id: "intro_almost", type: "info", image: "assets/57c.jpg",
       title: "Almost done!",
-      body: "You're moments away from discovering a personalized path to looking and feeling your best. Let's finish up by exploring what motivates you!" },
+      body: "You're moments away from discovering a personalized path to looking and feeling your best.\n\nLet's finish up by exploring what motivates you!" },
 
     // ===================== Almost there =====================
     { id: "main_reason", type: "multi", section: "Lifestyle",
@@ -336,7 +336,7 @@ window.FUNNEL = {
 
     { id: "intro_sustainable", type: "info", image: "assets/62.webp",
       title: "Why do people give up on their weight-loss efforts?",
-      body: "That's exactly why our program focuses on small, sustainable changes to your lifestyle — so you can transform how you feel and enjoy thriving health, for life." },
+      body: "That's exactly why our program focuses on small, sustainable changes to your lifestyle — so you can **transform how you feel and enjoy thriving health, for life.**" },
 
     { id: "explore", type: "multi", section: "Lifestyle",
       q: "While we're customizing your journey, what else do you want to explore?",
@@ -357,7 +357,7 @@ window.FUNNEL = {
 
     { id: "intro_focus20", type: "info", image: "assets/seniors_03.jpg",
       title: "Just 20 minutes of Chair Tai Chi boosts focus and brainpower",
-      body: "It increases blood flow to your brain and helps sharpen memory, improve focus, and support clearer thinking." },
+      body: "It increases blood flow to your brain and helps **sharpen memory, improve focus, and support clearer thinking.**" },
 
     { id: "daypart", type: "single", section: "Lifestyle",
       q: "When do you feel most “on” — morning or night?",
