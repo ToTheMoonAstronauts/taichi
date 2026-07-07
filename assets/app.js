@@ -294,13 +294,15 @@
   }
   function chartEl() {
     const now = S.weight_kg || 78, goal = S.goal_weight_kg || Math.round((S.weight_kg || 78) * 0.85);
+    const green = document.documentElement.getAttribute("data-theme") === "green";
+    const c1 = green ? "#45b577" : "#bf7350", c2 = green ? "#2f9d61" : "#c98a5f";  // line follows palette
     const box = el("div", "chartbox");
     box.innerHTML = `<svg viewBox="0 0 320 140" preserveAspectRatio="none">
       <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="var(--q-rose)" stop-opacity=".35"/><stop offset="1" stop-color="var(--q-rose)" stop-opacity="0"/></linearGradient></defs>
+      <stop offset="0" stop-color="${c1}" stop-opacity=".35"/><stop offset="1" stop-color="${c1}" stop-opacity="0"/></linearGradient></defs>
       <path d="M10,30 C110,40 180,95 310,110 L310,140 L10,140 Z" fill="url(#g)"/>
-      <path d="M10,30 C110,40 180,95 310,110" fill="none" stroke="var(--q-rose)" stroke-width="3"/>
-      <circle cx="10" cy="30" r="5" fill="var(--q-rose)"/><circle cx="310" cy="110" r="5" fill="var(--q-terracotta)"/>
+      <path d="M10,30 C110,40 180,95 310,110" fill="none" stroke="${c1}" stroke-width="3"/>
+      <circle cx="10" cy="30" r="5" fill="${c1}"/><circle cx="310" cy="110" r="5" fill="${c2}"/>
       </svg>
       <div class="chartlabels"><span>Now · ${now}kg</span><span>Goal · ${goal}kg</span></div>`;
     return box;
