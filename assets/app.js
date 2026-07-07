@@ -386,17 +386,17 @@
 
   function rGoals(scr, root) {
     const goal = S.goal_weight_kg || "—", now = S.weight_kg || "—";
-    root.appendChild(el("h1", "q", `${S.name ? S.name + ", your" : "Your"} plan is ready`));
+    root.appendChild(el("h1", "q", `${S.name ? S.name + ", reach" : "Reach"} your goal of ${goal}kg`));
+    root.appendChild(el("p", "sub", "And build a body you feel good living in"));
     root.appendChild(chartEl());
     const ul = el("ul", "bullets goals-bullets");
-    ["A personalized seated Chair Tai Chi routine",
-     "Short, joint-friendly daily sessions",
-     "Balance, mobility and gentle strength work",
-     "Progress tracking and simple nutrition tips",
-     "A 24/7 wellness assistant for questions"].forEach(b => ul.appendChild(el("li", "", b)));
+    ["Slim down and tone up with gentle but effective workouts",
+     "Gentle seated workouts — no equipment needed",
+     "Customized nutrition suggestions for better results",
+     "24/7 personalized wellness assistant"].forEach(b => ul.appendChild(el("li", "", b)));
     root.appendChild(ul);
     S.status = "completed"; window.CTC.saveSession();
-    ctaBar("Get my plan", () => { window.location.href = "checkout.html"; });
+    ctaBar("Get My Plan", () => { window.location.href = "checkout.html"; });
   }
 
   // ---- sticky CTA ----
