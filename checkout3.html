@@ -354,6 +354,8 @@
         `You'll be charged <b>$${p.intro} today</b> for your first ${p.popShort}. ` +
         `After that your plan renews at <b>$${p.old} every ${p.period}</b> unless you cancel. Cancel anytime in your account.`;
       document.querySelectorAll(".renew-note").forEach(el => el.innerHTML = msg);
+      document.querySelectorAll("#getPlan, #getPlan2").forEach(b => b.textContent = `Start for $${p.intro}`);
+      const top = document.querySelector(".co-top .btn-sm"); if (top) top.textContent = `Start for $${p.intro}`;
     }
     renderPlans(); updateRenew();
 
