@@ -102,10 +102,16 @@ Deno.serve(async (req) => {
       case 'payment_intent.succeeded': {
         const pi = event.data.object as Stripe.PaymentIntent;
         if (pi.metadata?.upsell_id) {
+          // Capture the charge's receipt_url so the app can link a receipt (the PI object alone doesn't carry it).
+          let receipt_url: string | null = null;
+          try {
+            const chId = (pi.latest_charge as string) || null;
+            if (chId) receipt_url = (await stripe.charges.retrieve(chId)).receipt_url ?? null;
+          } catch (_) { /* receipt optional */ }
           await db.from('payments').upsert({
             id: pi.id, user_id: pi.metadata.user_id, amount: (pi.amount_received ?? 0) / 100,
             currency: pi.currency, kind: 'upsell:' + pi.metadata.upsell_id, status: 'succeeded',
-            raw: pi as unknown as Record<string, unknown>,
+            raw: { ...(pi as unknown as Record<string, unknown>), receipt_url },
           }, { onConflict: 'id', ignoreDuplicates: true });
           const email = await emailForUser(db, pi.metadata.user_id);
           const amt = ((pi.amount_received ?? 0) / 100).toFixed(2);
