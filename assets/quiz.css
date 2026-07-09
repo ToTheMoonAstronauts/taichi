@@ -273,7 +273,7 @@ body.debug .topbar .stepno{display:inline-block}
 .projchart-cap{font-size:11.5px;color:var(--q-muted);margin-top:4px;padding-left:4px}
 
 /* First section = one continuous progress bar (segments merged); later sections stay 3-segment */
-.progress.single{gap:0}
+.progress.single{gap:0;max-width:200px}
 .progress.single .seg{border-radius:0}
 .progress.single .seg:first-child{border-top-left-radius:10px;border-bottom-left-radius:10px}
 .progress.single .seg:last-child{border-top-right-radius:10px;border-bottom-right-radius:10px}

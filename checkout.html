@@ -53,7 +53,7 @@
   .co-clock small{font-size:9.5px;font-weight:500;color:var(--muted);letter-spacing:.7px}
   .co-top-brand{display:inline-flex;align-items:center;gap:7px;font-family:var(--serif);font-weight:500;font-size:17px;color:var(--ink);white-space:nowrap}
   .co-top-brand img{height:22px;width:auto;display:block}
-  @media (max-width:400px){ .co-top-brand{font-size:0;gap:0} .co-top-brand img{height:26px} }  /* logo-only on very small screens */
+  @media (max-width:400px){ .co-top-brand{font-size:15px} }
   .co-top .btn-sm{background:var(--grad);color:#fff;border:none;border-radius:20px;padding:10px 18px;font-weight:500;font-size:14px;cursor:pointer;text-decoration:none;box-shadow:0 4px 14px var(--btn-glow)}
 
   .co{max-width:var(--maxw);margin:0 auto;padding:12px 20px 40px}
@@ -65,7 +65,7 @@
   .ba2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
   .ba2 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
   .ba2 .tag{display:block;text-align:center;font-weight:600;font-size:11px;letter-spacing:1px;padding:9px;color:#fff}
-  .ba2 .before .tag{background:#b57a63}.ba2 .after .tag{background:var(--sage)}
+  .ba2 .before .tag{background:#3f5d3c}.ba2 .after .tag{background:#d5643e}
   .ba2 .ph{width:100%;aspect-ratio:1/1.05;display:block;background:linear-gradient(135deg,#e8dccb,#d3c0aa);background-size:cover;background-position:center}
   .ba2 .rows{padding:12px 12px 14px}
   .ba2 .r{font-size:13px;margin-bottom:8px}
@@ -85,7 +85,8 @@
   .sc-head .sc-t{flex:1}
   .sc-big{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1;white-space:nowrap}
   .sc-big.red{color:#d0453a}
-  .sc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+  .sc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;flex-wrap:wrap}
+  @media (max-width:480px){ .sc-row{justify-content:flex-start} .sc-row .rec-tag{flex-basis:100%;white-space:normal} }
   .rec-tag{background:var(--primary-soft);color:var(--primary-dark);font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 9px;border-radius:8px;text-transform:uppercase;white-space:nowrap}
   .stress-alert{display:flex;align-items:center;gap:8px;margin-top:12px;background:#fdecec;color:#c0392b;border-radius:10px;padding:10px 12px;font-size:14px}
   .stress-alert b{color:#c0392b}
@@ -100,9 +101,10 @@
   .glasses{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
   .wg{width:15px;height:21px;border:1.5px solid #a9cbe6;border-top-width:1px;border-radius:2px 2px 6px 6px;background:linear-gradient(to top,#6cbcf0 0,#8fcdf3 60%,#eaf5fd 60%,#eaf5fd 100%)}
   .note{color:var(--muted)}
+  .note a,.mbg a{color:inherit;text-decoration:underline}
 
   /* pricing */
-  .promo{background:var(--primary-soft);border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .promo{background:#d4ebae;border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
   .promo .code{flex:1;background:#fff;border-radius:8px;padding:10px 12px;font-weight:500;color:var(--primary-dark);font-size:14px}
   .promo .clk{background:var(--grad);color:#fff;border-radius:8px;padding:8px 12px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums}
   .promo .clk small{display:block;font-size:9px;font-weight:500}
@@ -150,7 +152,7 @@
   <div class="co-top">
     <div class="co-top-in">
       <span class="co-clock"><small>OFFER ENDS</small><span class="t" id="clock">05:00</span></span>
-      <span class="co-top-brand"><img src="assets/logo2.webp" alt="">Tai&nbsp;Motion</span>
+      <span class="co-top-brand">Tai&nbsp;Motion</span>
       <a class="btn-sm" href="#pricing">Get my plan</a>
     </div>
   </div>
@@ -348,16 +350,14 @@
       document.querySelectorAll(".plan").forEach(el => el.onclick = () => { selected = el.dataset.id; renderPlans(); updateRenew(); });
     }
     function updateRenew() {
-      const p = PLANS.find(x => x.id === selected);
       document.getElementById("renewNote").innerHTML =
-        `You'll be charged $${p.intro} today for your ${p.name.replace(' plan','')} introductory period. ` +
-        `Unless you cancel before it ends, it renews at the regular price. Cancel anytime in your account.`;
+        'By continuing, you agree to our <a href="terms-of-services.html" target="_blank" rel="noopener">Terms of Service</a> &amp; <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>.';
     }
     renderPlans(); updateRenew();
 
     // countdown (both clocks)
     let t = 300;
-    setInterval(() => { if (t > 0) t--; const m = String(Math.floor(t/60)).padStart(2,'0'), s = String(t%60).padStart(2,'0');
+    setInterval(() => { if (t > 0) t--; else t = 300; const m = String(Math.floor(t/60)).padStart(2,'0'), s = String(t%60).padStart(2,'0');
       document.getElementById("clock").textContent = m + ":" + s;
       document.getElementById("clock2").innerHTML = m + ":" + s + "<small>MIN&nbsp;&nbsp;SEC</small>";
       var c3 = document.getElementById("clock3"); if (c3) c3.innerHTML = m + ":" + s + "<small>MIN&nbsp;&nbsp;SEC</small>"; }, 1000);
