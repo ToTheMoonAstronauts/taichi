@@ -14,7 +14,7 @@ window.FUNNEL = {
   brand: "Chair Tai Chi",
   screens: [
     // ===================== My profile =====================
-    { id: "tried_before", type: "single", section: "My profile", figure: "assets/2_tried.webp",
+    { id: "tried_before", type: "single", section: "My profile", figure: "assets/2b_tried.webp",
       q: "Have you tried Chair Tai Chi before?",
       options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }] },
 

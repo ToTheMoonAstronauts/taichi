@@ -95,8 +95,8 @@ h1.q{font-family:var(--sans);font-size:23px;line-height:1.3;margin:6px 0 8px;fon
 .locked{pointer-events:none}
 
 /* decorative figure below options (tried_before) — sized down ~30% */
-.quiz-figure{margin:16px auto 0;max-width:168px}
-.quiz-figure img{width:100%;display:block;max-height:200px;object-fit:contain}
+.quiz-figure{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:74%;max-width:340px;margin:0;z-index:1;pointer-events:none}
+.quiz-figure img{width:100%;display:block;max-height:48vh;object-fit:contain}
 
 /* gate with figure beside options */
 .gate-2col{display:flex;align-items:center;gap:14px;max-width:var(--maxw);margin:8px auto 0}
