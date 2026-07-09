@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<script src="assets/theme.js?v=2"></script>
+<script src="assets/theme.js?v=3"></script>
 <title>Chair Tai Chi — Your plan | Tai Motion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -306,6 +306,7 @@
     ];
     let session = {}; try { session = JSON.parse(localStorage.getItem("ctc_quiz_session")) || {}; } catch (e) {}
     let selected = "4w";
+    try { const _sp = new URLSearchParams(location.search).get("plan") || localStorage.getItem("ctc_plan"); if (_sp && PLANS.find(p => p.id === _sp)) selected = _sp; } catch (e) {}
 
     if (session.name) document.getElementById("headline").textContent = session.name + ", your plan is ready";
 

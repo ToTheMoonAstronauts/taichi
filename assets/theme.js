@@ -30,6 +30,7 @@
       theme = readCookie() || (function () { try { return localStorage.getItem(COOKIE); } catch (e) { return null; } })() || "green";
     }
 
+    try { var _q = new URLSearchParams(location.search); var _pm = _q.get("promo"); if (_pm) localStorage.setItem("ctc_promo", _pm); var _pl = _q.get("plan"); if (_pl) localStorage.setItem("ctc_plan", _pl); } catch (e) {}
     window.TM_THEME = theme;
     document.documentElement.setAttribute("data-theme", theme);
 
