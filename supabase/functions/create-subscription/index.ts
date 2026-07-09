@@ -13,6 +13,9 @@ const PLANS: Record<string, { price: string; coupon: string }> = {
   '4w':  { price: 'price_1TqChS3x0B891G8VAnNFfhdA', coupon: 'RKIibGD8' }, // $9.99 -> $49.95/4wk
   '12w': { price: 'price_1TqChT3x0B891G8V0FNT81If', coupon: '3sUP0i8K' }, // $19.99 -> $84.95/12wk
 };
+// TEST onboarding: TMTEST50 subscribes to a $0.50/week price with NO coupon -> $0.50 first AND every renewal.
+const TEST_PROMO = 'TMTEST50';
+const TEST_PRICE = 'price_1TrJ8c3x0B891G8VROVSAOc0';
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } });
 
@@ -72,12 +75,17 @@ Deno.serve(async (req) => {
     await db.from('users').update(updates).eq('id', userId); // service role -> past billing guard
     await db.from('quiz_sessions').update({ user_id: userId, selected_plan: plan_id }).eq('id', quiz_session_id);
 
-    // Discount: default = plan's intro coupon. A valid promo code REPLACES it.
+    // Price + discount. Default = plan's regular price + its one-time intro coupon.
+    // TEST promo routes to the $0.50/week test price with NO coupon -> $0.50 first and every renewal.
+    let priceId = plan.price;
     let discounts: Stripe.SubscriptionCreateParams.Discount[] = [{ coupon: plan.coupon }];
-    if (promo_code) {
+    const isTest = !!promo_code && String(promo_code).trim().toUpperCase() === TEST_PROMO;
+    if (isTest) {
+      priceId = TEST_PRICE;
+      discounts = [];
+    } else if (promo_code) {
       const found = await stripe.promotionCodes.list({ code: String(promo_code).trim(), active: true, limit: 1 });
       if (!found.data.length) return json({ error: 'invalid promo code' }, 400);
-      // Apply the promo's underlying coupon (same path as the intro coupon; reliable PI creation).
       const c = found.data[0].coupon as Stripe.Coupon;
       discounts = [{ coupon: c.id }];
     }
@@ -103,12 +111,12 @@ Deno.serve(async (req) => {
     const checkoutToken = crypto.randomUUID();
     const sub = await stripe.subscriptions.create({
       customer: customerId,
-      items: [{ price: plan.price }],
+      items: [{ price: priceId }],
       discounts,
       payment_behavior: 'default_incomplete',
       payment_settings: { save_default_payment_method: 'on_subscription', payment_method_types: ['card'] },
       expand: ['latest_invoice.payment_intent'],
-      metadata: { user_id: userId, plan_id, checkout_token: checkoutToken },
+      metadata: { user_id: userId, plan_id, checkout_token: checkoutToken, test: isTest ? '1' : '' },
     });
     const pi = (sub.latest_invoice as Stripe.Invoice).payment_intent as Stripe.PaymentIntent;
     return json({ clientSecret: pi.client_secret, subscriptionId: sub.id, checkoutToken, amount: pi.amount });
