@@ -32,7 +32,7 @@ function shell(inner: string, unsubUrl: string) {
     <tr><td style="padding:26px 28px 8px;font-size:16px;color:#2c2417;line-height:1.6">${inner}</td></tr>
   </table>
   <div style="color:#b3ab98;font-size:12px;margin-top:14px;line-height:1.6;max-width:520px;text-align:center">
-    Tai&nbsp;Motion · MB&nbsp;Monokodas · ${esc(ADDRESS)}<br>
+    Tai&nbsp;Motion · ${esc(ADDRESS)}<br>
     You're receiving this because you started a plan at taimotion.com. <a href="${unsubUrl}" style="color:#8a8172">Unsubscribe</a></div>
   </td></tr></table></body></html>`;
 }
