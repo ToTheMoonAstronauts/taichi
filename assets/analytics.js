@@ -62,6 +62,8 @@
   }
 
   window.TM = { track: track, identify: identify, sid: sid };
-  // Baseline: every page that loads this fires a page_view — gives page-level funnel for free.
-  try { track("page_view", { title: (document.title || "").slice(0, 80) }); } catch (e) {}
+  // Baseline: every page fires one page_view — deferred so <title> is parsed first.
+  function firePV() { try { track("page_view", { title: (document.title || "").slice(0, 80) }); } catch (e) {} }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", firePV, { once: true });
+  else firePV();
 })();
