@@ -6,6 +6,23 @@
 <script src="assets/theme.js?v=3"></script>
 <script src="assets/track.js?v=3"></script>
 <script src="assets/analytics.js?v=4"></script>
+<script>
+/* Resume from a recovery email: ?resume=<quiz_session_id> re-seeds the funnel (works on any
+ * device), then reloads clean so the normal checkout flow picks up the prefilled session. */
+(async function () {
+  try {
+    var p = new URLSearchParams(location.search); var rid = p.get("resume");
+    if (!rid) return;
+    var s = {}; try { s = JSON.parse(localStorage.getItem("ctc_quiz_session")) || {}; } catch (e) {}
+    if (s.__resumed !== rid) {
+      var r = await fetch("https://pixtozeghxwiidpnloih.supabase.co/functions/v1/resume-lead", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: rid }) });
+      var d = await r.json();
+      if (d && d.email) { s.id = rid; s.email = d.email; if (d.selected_plan) s.selected_plan = d.selected_plan; if (d.name) s.name = d.name; if (d.bmi != null) s.bmi = d.bmi; s.__resumed = rid; localStorage.setItem("ctc_quiz_session", JSON.stringify(s)); }
+    }
+    p.delete("resume"); location.replace(location.pathname + (p.toString() ? "?" + p.toString() : "") + location.hash);
+  } catch (e) {}
+})();
+</script>
 <title>Chair Tai Chi — Your plan | Tai Motion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
