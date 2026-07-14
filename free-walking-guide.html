@@ -28,9 +28,10 @@
   .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
   .btn:active{transform:scale(.99)}
   .hint{font-size:14px;color:var(--muted);margin-top:14px}
-  .sec{margin-top:26px;font-size:15px;color:var(--ink-soft,#3c5140)}
-  .sec a{color:var(--accent-dark);font-weight:600;text-decoration:none}
-  .sec a:hover{text-decoration:underline}
+  .sec{margin-top:26px;font-size:15px;color:#3c5140}
+  .btn2{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:var(--accent-dark);border:2px solid var(--accent);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;padding:13px 26px;border-radius:14px;text-decoration:none;margin-top:12px;width:100%;max-width:340px;transition:background .2s}
+  .btn2:hover{background:var(--tint)}
+  .btn2:active{transform:scale(.99)}
   footer{margin-top:auto;padding-top:34px;font-size:12px;color:var(--muted);line-height:1.6}
 </style>
 </head>
@@ -48,13 +49,9 @@
       <a class="btn" href="assets/tai-chi-walking2.pdf" download="Tai-Motion-Tai-Chi-Walking-Guide.pdf">⬇  Download the PDF</a>
       <p class="hint">Works on your phone, tablet, or computer — save it or print it.</p>
 
-      <div class="sec">Want your full personalized plan?<br><a href="quiz.html?start=1">Take the free 2-minute quiz →</a></div>
+      <div class="sec">Want your full personalized plan?</div>
+      <a class="btn2" href="quiz.html?start=1&utm_source=free-walking-guide">Take the free 2-minute quiz →</a>
     </div>
-
-    <footer>
-      Tai&nbsp;Motion · TM&nbsp;LLC · 30 N Gould St, Sheridan, WY 82801, US<br>
-      Gentle wellness &amp; movement — not medical advice.
-    </footer>
   </div>
 </body>
 </html>
