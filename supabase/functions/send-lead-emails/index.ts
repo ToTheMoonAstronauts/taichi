@@ -52,6 +52,18 @@ function buildEmail(step: number, resumeUrl: string, unsubUrl: string) {
          <p style="color:#6b6250">Warmly,<br>The Tai Motion team</p>`, unsubUrl),
     };
   }
+  if (step === 3) {
+    return {
+      subject: 'A little gift for you — your free Tai Chi Walking guide 🌿',
+      html: shell(
+        `<p>Hi there,</p>
+         <p>No pressure at all — whether or not now's the right time, we wanted to send you the free <b>Tai Chi Walking</b> guide we promised. It's yours to keep.</p>
+         ${cta(FUNNEL + '/free-walking-guide', 'Get my free guide')}
+         <p>A gentle, printable walking routine you can start today — no strings attached.</p>
+         <p style="color:#6b6250">And whenever you're ready for the full chair Tai Chi program, <a href="${resumeUrl}" style="color:#3f7a52">your plan is still saved</a>.</p>
+         <p style="color:#6b6250">Warmly,<br>The Tai Motion team</p>`, unsubUrl),
+    };
+  }
   return {
     subject: 'Still yours — here\'s everything waiting inside',
     html: shell(
@@ -90,7 +102,7 @@ Deno.serve(async (req) => {
 
   const out: Record<string, unknown> = { dry, enabled: ENABLED, hasAddress: !!ADDRESS };
   let sent = 0; const sample: string[] = [];
-  for (const step of [1, 2]) {
+  for (const step of [1, 2, 3]) {
     const { data, error } = await svc.rpc('due_lead_emails', { p_step: step });
     if (error) { out['step' + step] = 'error: ' + error.message; continue; }
     const rows = (data || []) as { quiz_session_id: string; email: string }[];
