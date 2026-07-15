@@ -37,8 +37,10 @@
   .arrow:hover{filter:brightness(.98);transform:scale(1.04)}
   .arrow:active{transform:scale(.96)}
   .arrow[disabled]{opacity:.3;cursor:default;box-shadow:none}
-  .vidwrap{flex:1;min-width:0;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000}
-  .vidwrap video{display:block;width:100%;height:auto}
+  .vidwrap{flex:1;min-width:0;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0d130f;aspect-ratio:16/9;position:relative}
+  .vidwrap video{display:block;width:100%;height:100%;object-fit:cover}
+  .vidwrap.loading::after{content:"";position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
   .dots{display:flex;justify-content:center;gap:7px;margin:14px 0 4px;flex-wrap:wrap}
   .dot{width:9px;height:9px;border-radius:50%;background:var(--line);cursor:pointer;transition:background .15s,transform .15s}
   .dot.on{background:var(--accent);transform:scale(1.25)}
@@ -122,6 +124,7 @@ function render(){
   document.getElementById('cFocus').textContent=it.min+' min · follow along';
   var b=document.getElementById('cBadge'); b.textContent=it.lvl; b.className='badge '+it.lvl.toLowerCase();
   document.getElementById('cCount').textContent=(i+1)+' / '+ITEMS.length;
+  var wrap=V.parentNode; wrap.classList.add('loading');
   V.pause(); V.setAttribute('src', it.video); V.load();
   document.getElementById('cSteps').innerHTML=it.steps.map(function(s){return '<li>'+s+'</li>'}).join('');
   document.getElementById('prev').disabled=(i===0);
@@ -132,6 +135,8 @@ function render(){
 function go(n){ if(n<0||n>=ITEMS.length) return; i=n; render(); document.querySelector('.carousel').scrollIntoView({behavior:'smooth',block:'start'}); }
 var dots=document.getElementById('dots');
 ITEMS.forEach(function(_,k){ var d=document.createElement('span'); d.className='dot'; d.onclick=function(){go(k)}; dots.appendChild(d); });
+V.addEventListener('loadeddata',function(){V.parentNode.classList.remove('loading')});
+V.addEventListener('canplay',function(){V.parentNode.classList.remove('loading')});
 document.getElementById('prev').onclick=function(){go(i-1)};
 document.getElementById('next').onclick=function(){go(i+1)};
 render();
