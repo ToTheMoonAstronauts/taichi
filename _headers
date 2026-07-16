@@ -12,7 +12,9 @@
 
 # Keep guide PDFs and the internal/demo pages out of search engines
 # (the public marketing pages — home, quiz — stay indexable).
-/assets/*.pdf
+/assets/chair-guide.pdf
+  X-Robots-Tag: noindex, nofollow
+/assets/tai-chi-walking2.pdf
   X-Robots-Tag: noindex, nofollow
 /chair-guide
   X-Robots-Tag: noindex, nofollow
