@@ -54,12 +54,12 @@ function buildEmail(step: number, resumeUrl: string, unsubUrl: string) {
   }
   if (step === 3) {
     return {
-      subject: 'A little gift for you — your free Tai Chi Walking guide 🌿',
+      subject: 'A little gift for you — your free Chair Tai Chi guide 🌿',
       html: shell(
         `<p>Hi there,</p>
-         <p>No pressure at all — whether or not now's the right time, we wanted to send you the free <b>Tai Chi Walking</b> guide we promised. It's yours to keep.</p>
-         ${cta(FUNNEL + '/free-walking-guide', 'Get my free guide')}
-         <p>A gentle, printable walking routine you can start today — no strings attached.</p>
+         <p>No pressure at all — whether or not now's the right time, we wanted to send you the free demo of <b>Chair Tai Chi Walking</b> printable PDF guide we promised. It's yours to keep.</p>
+         ${cta(FUNNEL + '/free-chair-guide', 'Get my free guide')}
+         <p>A gentle, printable chair routine you can start today — no strings attached.</p>
          <p style="color:#6b6250">And whenever you're ready for the full chair Tai Chi program, <a href="${resumeUrl}" style="color:#3f7a52">your plan is still saved</a>.</p>
          <p style="color:#6b6250">Warmly,<br>The Tai Motion team</p>`, unsubUrl),
     };
@@ -94,6 +94,24 @@ async function sendOne(to: string, subject: string, html: string) {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   const url = new URL(req.url);
+
+  // Preview mode: send all three emails to a given address so we can eyeball the rendering.
+  // Restricted to our own abobinas+*@gmail.com aliases so it can't be used as an open relay.
+  const preview = url.searchParams.get('preview');
+  if (preview) {
+    if (!/^abobinas\+[a-z0-9._+-]*@gmail\.com$/i.test(preview)) return json({ ok: false, error: 'preview restricted to abobinas+ aliases' }, 403);
+    const resumeUrl = `${FUNNEL}/checkout?resume=preview`;
+    const tok = await sign(preview);
+    const unsubUrl = `${SB_URL}/functions/v1/lead-unsubscribe?e=${b64url(preview)}&t=${tok}`;
+    const results = [];
+    for (const step of [1, 2, 3]) {
+      const { subject, html } = buildEmail(step, resumeUrl, unsubUrl);
+      const ok = await sendOne(preview, `[Preview • email ${step}] ${subject}`, html);
+      results.push({ step, subject, ok });
+    }
+    return json({ preview: preview, results });
+  }
+
   const dry = url.searchParams.get('dry') === '1';
   // cron auth (skip for dry-run introspection which is harmless)
   if (!dry && CRON_KEY && req.headers.get('x-cron-key') !== CRON_KEY) return json({ ok: false, error: 'unauthorized' }, 401);
