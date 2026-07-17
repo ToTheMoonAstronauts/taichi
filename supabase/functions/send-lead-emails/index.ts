@@ -57,7 +57,7 @@ function buildEmail(step: number, resumeUrl: string, unsubUrl: string) {
       subject: 'A little gift for you — your free Chair Tai Chi guide 🌿',
       html: shell(
         `<p>Hi there,</p>
-         <p>No pressure at all — whether or not now's the right time, we wanted to send you the free demo of <b>Chair Tai Chi Walking</b> printable PDF guide we promised. It's yours to keep.</p>
+         <p>No pressure at all — whether or not now's the right time, we wanted to send you the free demo of <b>Chair Tai Chi</b> printable PDF guide we promised. It's yours to keep.</p>
          ${cta(FUNNEL + '/free-chair-guide', 'Get my free guide')}
          <p>A gentle, printable chair routine you can start today — no strings attached.</p>
          <p style="color:#6b6250">And whenever you're ready for the full chair Tai Chi program, <a href="${resumeUrl}" style="color:#3f7a52">your plan is still saved</a>.</p>
