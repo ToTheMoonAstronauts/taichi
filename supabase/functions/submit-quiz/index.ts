@@ -1,4 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { fmtNewLead, notifySlack } from "../_shared/slack.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -41,10 +42,20 @@ Deno.serve(async (req) => {
         headers: { ...cors, "Content-Type": "application/json" },
       });
     }
+    // Lead detection BEFORE the upsert: the quiz upserts on every answer, so
+    // alert only when this write is the one that first captures an email.
+    let isNewLead = false;
+    if (row.email) {
+      const { data: prior } = await db.from("quiz_sessions").select("email")
+        .eq("id", row.id).maybeSingle();
+      isNewLead = !prior?.email;
+    }
     const { error } = await db.from("quiz_sessions").upsert(row, {
       onConflict: "id",
     });
     if (error) throw error;
+    // After the primary work succeeded. Anonymous — never put lead PII in Slack.
+    if (isNewLead) await notifySlack(fmtNewLead(row.funnel, row.ab_test_variant));
     return new Response(JSON.stringify({ ok: true, id: row.id }), {
       headers: { ...cors, "Content-Type": "application/json" },
     });

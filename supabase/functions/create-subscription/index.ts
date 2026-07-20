@@ -1,6 +1,7 @@
 import Stripe from 'npm:stripe@17';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { buildFbc } from '../_shared/meta-capi.ts';
+import { fmtAccountCreated, notifySlack } from '../_shared/slack.ts';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-06-20' });
 const cors = {
@@ -23,14 +24,14 @@ const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } });
 
 // Resolve (create if needed) the auth user id for an email. Mirrors complete-order.
-async function resolveUser(db: ReturnType<typeof createClient>, email: string): Promise<string> {
+async function resolveUser(db: ReturnType<typeof createClient>, email: string): Promise<{ id: string; created: boolean }> {
   const created = await db.auth.admin.createUser({ email, email_confirm: true });
-  if (created.data?.user) return created.data.user.id;
+  if (created.data?.user) return { id: created.data.user.id, created: true };
   const { data: u } = await db.from('users').select('id').eq('email', email).maybeSingle();
-  if (u?.id) return u.id;
+  if (u?.id) return { id: u.id, created: false };
   const { data: list } = await db.auth.admin.listUsers();
   const found = list?.users?.find((x) => (x.email || '').toLowerCase() === email.toLowerCase());
-  if (found) return found.id;
+  if (found) return { id: found.id, created: false };
   throw new Error('could not resolve user');
 }
 
@@ -52,7 +53,10 @@ Deno.serve(async (req) => {
     if (!quiz.email) return json({ error: 'quiz session has no email' }, 400);
     const clean = quiz.email.trim().toLowerCase();
 
-    const userId = await resolveUser(db, clean);
+    const { id: userId, created: newAccount } = await resolveUser(db, clean);
+    // Account creation is complete at this point — alert now (best-effort;
+    // notifySlack swallows errors and never delays checkout).
+    if (newAccount) await notifySlack(fmtAccountCreated(clean));
 
     // Never start a fresh checkout for an account that already has access.
     const { data: urow } = await db.from('users')

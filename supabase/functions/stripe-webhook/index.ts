@@ -1,16 +1,11 @@
 import Stripe from 'npm:stripe@17';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { sendPurchase } from '../_shared/meta-capi.ts';
+import { fmtCancelScheduled, fmtPaymentFailed, fmtSubscriptionEnded, fmtSubscriptionPaid, fmtUpsellPaid, notifySlack } from '../_shared/slack.ts';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-06-20' });
 const WHSEC = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
-const SLACK = Deno.env.get('SLACK_WEBHOOK_URL');
 const svc = () => createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
-
-async function notify(text: string) {
-  if (!SLACK) return;
-  try { await fetch(SLACK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) }); } catch (_) { /* never block provisioning on Slack */ }
-}
 
 async function userForCustomer(db: ReturnType<typeof svc>, customerId: string): Promise<string | null> {
   const { data } = await db.from('users').select('id').eq('stripe_customer_id', customerId).maybeSingle();
@@ -89,9 +84,7 @@ Deno.serve(async (req) => {
           kind, status: 'succeeded', raw: inv as unknown as Record<string, unknown>,
         });
         const email = inv.customer_email || await emailForUser(db, userId);
-        const amt = ((inv.amount_paid ?? 0) / 100).toFixed(2);
-        const tag = (inv.amount_paid ?? 0) <= 100 ? ' _(test)_' : '';
-        await notify(`:moneybag: *${kind === 'initial' ? 'New subscription' : 'Renewal'}* — ${email} — $${amt} ${inv.currency.toUpperCase()}${tag}`);
+        await notifySlack(fmtSubscriptionPaid(kind, email, inv.amount_paid ?? 0, inv.currency, (inv.amount_paid ?? 0) <= 100));
         // CAPI Purchase — only the acquisition invoice (subscription_create), not renewals.
         if (kind === 'initial') {
           let meta: Record<string, string> = {};
@@ -108,7 +101,30 @@ Deno.serve(async (req) => {
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
-        await syncSubscription(db, (event.data.object as Stripe.Subscription).id);
+        const sub = event.data.object as Stripe.Subscription;
+        await syncSubscription(db, sub.id); // primary work first; alerts only after it succeeded
+        if (event.type === 'customer.subscription.updated') {
+          // Actionable churn: alert the moment cancel_at_period_end FLIPS to true.
+          // previous_attributes is present on *.updated events — no DB read needed,
+          // and unrelated updates (renewal bumps, metadata) never re-alert.
+          const prev = event.data.previous_attributes as Partial<Stripe.Subscription> | undefined;
+          if (sub.cancel_at_period_end && prev?.cancel_at_period_end === false && !sub.metadata?.upsell_id) {
+            const email = await emailForUser(db, await userForCustomer(db, sub.customer as string));
+            await notifySlack(fmtCancelScheduled(email, sub.metadata?.plan_id, sub.current_period_end));
+          }
+        }
+        if (event.type === 'customer.subscription.deleted') {
+          const email = await emailForUser(db, await userForCustomer(db, sub.customer as string));
+          await notifySlack(fmtSubscriptionEnded(email, sub.metadata?.plan_id, sub.metadata?.upsell_id));
+        }
+        break;
+      }
+      case 'invoice.payment_failed': {
+        const inv = event.data.object as Stripe.Invoice;
+        if ((inv.attempt_count ?? 0) > 0) {
+          const email = inv.customer_email || await emailForUser(db, await userForCustomer(db, inv.customer as string));
+          await notifySlack(fmtPaymentFailed(email, inv.amount_due ?? 0, inv.currency, inv.attempt_count ?? 0));
+        }
         break;
       }
       case 'payment_intent.succeeded': {
@@ -126,9 +142,7 @@ Deno.serve(async (req) => {
             raw: { ...(pi as unknown as Record<string, unknown>), receipt_url },
           }, { onConflict: 'id', ignoreDuplicates: true });
           const email = await emailForUser(db, pi.metadata.user_id);
-          const amt = ((pi.amount_received ?? 0) / 100).toFixed(2);
-          const tag = pi.metadata.test === '1' ? ' _(test)_' : '';
-          await notify(`:heavy_plus_sign: *Upsell:* ${pi.metadata.upsell_id} — ${email} — $${amt} ${pi.currency.toUpperCase()}${tag}`);
+          await notifySlack(fmtUpsellPaid(pi.metadata.upsell_id, email, pi.amount_received ?? 0, pi.currency, pi.metadata.test === '1'));
           // CAPI Purchase for the upsell — skip internal test charges.
           if (pi.metadata.test !== '1') {
             await sendPurchase({
