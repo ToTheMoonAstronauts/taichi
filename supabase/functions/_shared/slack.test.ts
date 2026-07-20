@@ -48,7 +48,7 @@ Deno.test('money/churn formatters match the established channel format', () => {
   assertEquals(fmtPaymentFailed('a@b.com', 4995, 'usd', 2),
     ':warning: *Payment failed* — a@b.com — $49.95 USD — attempt 2');
   assertEquals(fmtAccountCreated('a@b.com'),
-    ':bust_in_silhouette: *Account created* — a@b.com');
+    ':bust_in_silhouette: *Account created* (checkout opened, not paid yet) — a@b.com');
   assertEquals(fmtRefund('a@b.com', 2199, 2199, 'usd'),
     ':money_with_wings: *Refund* — a@b.com — $21.99 USD'); // full: no "of" clause
   assertEquals(fmtRefund('a@b.com', 500, 2199, 'usd'),

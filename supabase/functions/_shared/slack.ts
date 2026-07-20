@@ -54,5 +54,7 @@ export function fmtNewLead(funnel: string | null | undefined, abVariant?: string
 }
 
 export function fmtAccountCreated(email: string): string {
-  return `:bust_in_silhouette: *Account created* — ${email}`;
+  // "checkout opened": the account is created when the pay page starts a
+  // checkout — no payment yet. A 👤 with no following 💰 = abandoned checkout.
+  return `:bust_in_silhouette: *Account created* (checkout opened, not paid yet) — ${email}`;
 }
