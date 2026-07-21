@@ -151,10 +151,15 @@ Deno.test('formatStats renders mrkdwn with both windows and derived metrics', as
     leads: () => 4,
   }));
   const text = formatStats(s);
-  assert(text.includes('*Right now:* 1 active'));
+  assert(text.includes('*Right now:* <https://dashboard.stripe.com/subscriptions?status=active|1 active>'));
   assert(text.includes('*Last 7 days*'));
   assert(text.includes('*Last 30 days*'));
-  assert(text.includes('• Revenue: $9.99'));
+  assert(text.includes('• <https://dashboard.stripe.com/payments|Revenue>: $9.99'));
+  assert(text.includes('<https://dashboard.stripe.com/subscriptions?status=all|New subscribers>'));
+  assert(text.includes('<https://dashboard.stripe.com/payments?status%5B%5D=refunded|Refunds>'));
+  assert(text.includes('<https://dashboard.stripe.com/invoices?status=open|Failed payments>'));
+  assert(text.includes('<https://dashboard.stripe.com/subscriptions?status=canceled|Churn>'));
+  assert(text.includes('editor|Leads>'));
   assert(text.includes('Lead→paid conversion: 25.0%'));
   assert(text.includes('plans: 4w×1'));
 });

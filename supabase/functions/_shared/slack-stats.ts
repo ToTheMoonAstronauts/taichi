@@ -217,16 +217,22 @@ export async function gatherStats(deps: StatsDeps): Promise<Stats> {
 
 // ── Formatting (Slack mrkdwn) ────────────────────────────────────────────────
 
+// Metric labels deep-link to the matching Stripe dashboard list (Slack
+// mrkdwn: <url|label>). Leads link to the Supabase quiz_sessions table.
+const DASH = 'https://dashboard.stripe.com';
+const LEADS_URL = 'https://supabase.com/dashboard/project/pixtozeghxwiidpnloih/editor';
+const link = (url: string, label: string) => `<${url}|${label}>`;
+
 function windowBlock(title: string, cur: WindowCounts, prev: WindowCounts): string {
   const totalRev = cur.revenueCents + cur.upsellCents;
   const prevRev = prev.revenueCents + prev.upsellCents;
   return [
     `*${title}* (vs preceding window):`,
-    `• New subscribers: ${cur.newSubs} (${pctChange(cur.newSubs, prev.newSubs)})`,
-    `• Cancellations: ${cur.cancels} (${pctChange(cur.cancels, prev.cancels)})`,
-    `• Revenue: ${fmtUsd(totalRev)} (${pctChange(totalRev, prevRev)}) — subs ${fmtUsd(cur.revenueCents)}, upsells ${fmtUsd(cur.upsellCents)}`,
-    `• Refunds: ${fmtUsd(cur.refundCents)} (${cur.refundCount})`,
-    `• Leads: ${cur.leads} (${pctChange(cur.leads, prev.leads)})`,
+    `• ${link(`${DASH}/subscriptions?status=all`, 'New subscribers')}: ${cur.newSubs} (${pctChange(cur.newSubs, prev.newSubs)})`,
+    `• ${link(`${DASH}/subscriptions?status=canceled`, 'Cancellations')}: ${cur.cancels} (${pctChange(cur.cancels, prev.cancels)})`,
+    `• ${link(`${DASH}/payments`, 'Revenue')}: ${fmtUsd(totalRev)} (${pctChange(totalRev, prevRev)}) — subs ${fmtUsd(cur.revenueCents)}, upsells ${fmtUsd(cur.upsellCents)}`,
+    `• ${link(`${DASH}/payments?status%5B%5D=refunded`, 'Refunds')}: ${fmtUsd(cur.refundCents)} (${cur.refundCount})`,
+    `• ${link(LEADS_URL, 'Leads')}: ${cur.leads} (${pctChange(cur.leads, prev.leads)})`,
   ].join('\n');
 }
 
@@ -234,13 +240,13 @@ export function formatStats(s: Stats): string {
   const mix = Object.entries(s.planMix).sort((a, b) => b[1] - a[1]).map(([p, n]) => `${p}×${n}`).join(', ') || '—';
   return [
     ':bar_chart: *Tai Motion — business stats*',
-    `*Right now:* ${s.active} active${s.trialing ? ` (+${s.trialing} trialing)` : ''} · MRR ${fmtUsd(s.mrrCents)} · plans: ${mix}`,
+    `*Right now:* ${link(`${DASH}/subscriptions?status=active`, `${s.active} active`)}${s.trialing ? ` (+${s.trialing} trialing)` : ''} · MRR ${fmtUsd(s.mrrCents)} · plans: ${mix}`,
     '',
     windowBlock('Last 7 days', s.d7, s.prev7),
-    `• Failed payments: ${s.failed7.count}${s.failed7.count ? ` (${fmtUsd(s.failed7.amountCents)})` : ''}`,
+    `• ${link(`${DASH}/invoices?status=open`, 'Failed payments')}: ${s.failed7.count}${s.failed7.count ? ` (${fmtUsd(s.failed7.amountCents)})` : ''}`,
     '',
     windowBlock('Last 30 days', s.d30, s.prev30),
     `• Lead→paid conversion: ${s.conversion30}`,
-    `• Churn: ${s.churn30}`,
+    `• ${link(`${DASH}/subscriptions?status=canceled`, 'Churn')}: ${s.churn30}`,
   ].join('\n');
 }
