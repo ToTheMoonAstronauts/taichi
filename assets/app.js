@@ -568,7 +568,12 @@
     const btn = inlineCta("Continue", () => {
       const v = inp.value.trim(); if (!okEmail(v)) { inp.focus(); inp.style.borderColor = "#ef6a6a"; return; }
       S.email = v; S.status = "email_captured"; window.CTC.saveSession();
-      if (window.API) API.submitQuiz(S);
+      // Ship the Meta ad-click id (captured site-wide by track.js) alongside the
+      // session so submit-quiz can send a CAPI Lead with fbc; S itself stays clean.
+      let fb = {}; try { fb = JSON.parse(localStorage.getItem("ctc_fbc")) || {}; } catch (e) {}
+      if (window.API) API.submitQuiz(Object.assign({ fbclid: fb.fbclid, fbclid_t: fb.fbclid_t }, S));
+      // Browser twin of the CAPI Lead — same event_id so Meta dedups the pair.
+      try { if (window.TM) TM.track("quiz_email_captured", { event_id: "lead_" + S.id }); } catch (e) {}
       go(1);
     }, !okEmail(S.email));
     inp.oninput = () => { btn.disabled = !okEmail(inp.value); inp.style.borderColor = ""; };

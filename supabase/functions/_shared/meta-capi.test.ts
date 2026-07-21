@@ -1,5 +1,49 @@
 import { assertEquals, assert } from 'jsr:@std/assert@1';
-import { sha256Hex, buildFbc, buildPurchasePayload, sendPurchase } from './meta-capi.ts';
+import { sha256Hex, buildFbc, buildPurchasePayload, buildLeadPayload, sendPurchase, sendLead } from './meta-capi.ts';
+
+Deno.test('buildLeadPayload assembles a Lead event without custom_data', () => {
+  const body = buildLeadPayload({
+    eventId: 'lead_abc', emailHash: 'HASH', fbc: 'fb.1.1700000000.X',
+    clientIp: '1.2.3.4', clientUserAgent: 'UA',
+    eventSourceUrl: 'https://taimotion.com/quiz.html', eventTime: 1700000001,
+  });
+  const ev = (body.data as any[])[0];
+  assertEquals(ev.event_name, 'Lead');
+  assertEquals(ev.event_id, 'lead_abc');
+  assertEquals(ev.event_time, 1700000001);
+  assertEquals(ev.action_source, 'website');
+  assertEquals(ev.event_source_url, 'https://taimotion.com/quiz.html');
+  assertEquals(ev.user_data.em, ['HASH']);
+  assertEquals(ev.user_data.client_ip_address, '1.2.3.4');
+  assertEquals(ev.user_data.client_user_agent, 'UA');
+  assertEquals(ev.user_data.fbc, 'fb.1.1700000000.X');
+  assert(!('custom_data' in ev));
+  assert(!('test_event_code' in body));
+});
+
+Deno.test('buildLeadPayload includes test_event_code and defaults the source url', () => {
+  const body = buildLeadPayload({ eventId: 'lead_1' }, 'TEST123');
+  const ev = (body.data as any[])[0];
+  assertEquals(body.test_event_code, 'TEST123');
+  assertEquals(ev.user_data, {});
+  assertEquals(ev.event_source_url, 'https://taimotion.com/');
+});
+
+Deno.test('sendLead no-ops (no fetch) when credentials are missing', async () => {
+  const prevPixel = Deno.env.get('META_PIXEL_ID');
+  const prevToken = Deno.env.get('META_CAPI_TOKEN');
+  Deno.env.delete('META_PIXEL_ID');
+  Deno.env.delete('META_CAPI_TOKEN');
+  try {
+    let called = false;
+    const fake: typeof fetch = async () => { called = true; return new Response('{}'); };
+    await sendLead({ eventId: 'lead_1', email: 'a@b.com' }, fake);
+    assertEquals(called, false);
+  } finally {
+    if (prevPixel === undefined) Deno.env.delete('META_PIXEL_ID'); else Deno.env.set('META_PIXEL_ID', prevPixel);
+    if (prevToken === undefined) Deno.env.delete('META_CAPI_TOKEN'); else Deno.env.set('META_CAPI_TOKEN', prevToken);
+  }
+});
 
 Deno.test('sha256Hex matches the known SHA-256("abc") vector', async () => {
   assertEquals(await sha256Hex('abc'),

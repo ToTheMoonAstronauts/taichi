@@ -1,4 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { buildFbc, sendLead } from "../_shared/meta-capi.ts";
 import { fmtNewLead, notifySlack } from "../_shared/slack.ts";
 
 const cors = {
@@ -55,7 +56,19 @@ Deno.serve(async (req) => {
     });
     if (error) throw error;
     // After the primary work succeeded. Anonymous — never put lead PII in Slack.
-    if (isNewLead) await notifySlack(fmtNewLead(row.funnel, row.ab_test_variant));
+    if (isNewLead) {
+      await notifySlack(fmtNewLead(row.funnel, row.ab_test_variant));
+      // Meta CAPI Lead. event_id = "lead_<session id>" — the browser pixel fires
+      // Lead with the same id at email capture, so Meta dedups the pair.
+      await sendLead({
+        eventId: `lead_${row.id}`,
+        email: row.email,
+        fbc: buildFbc(s.fbclid, s.fbclid_t),
+        clientIp: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null,
+        clientUserAgent: req.headers.get("user-agent"),
+        eventSourceUrl: "https://taimotion.com/quiz.html",
+      });
+    }
     return new Response(JSON.stringify({ ok: true, id: row.id }), {
       headers: { ...cors, "Content-Type": "application/json" },
     });

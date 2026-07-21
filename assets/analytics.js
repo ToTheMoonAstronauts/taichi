@@ -1,6 +1,6 @@
 /* Tai Motion — first-party funnel analytics (SEPARATE, additive service).
  * Sends events to the isolated `log-event` function (writes only to funnel_events)
- * + GTM dataLayer + PostHog. Does NOT touch checkout / subscription / quiz-state code.
+ * + GTM dataLayer + PostHog + Meta Pixel. Does NOT touch checkout / subscription / quiz-state code.
  * Public API: window.TM.track(event, props), window.TM.identify(userId), window.TM.sid()
  */
 (function () {
@@ -8,6 +8,12 @@
   var POSTHOG_KEY = "phc_qCr9WZ2RgZmQ6VpPmxUQ74jF3NERcDxi34nYEyduBMkm"; // PostHog project API key (public, client-side)
   var POSTHOG_HOST = "https://t.myphotoalive.com"; // managed reverse proxy (EU project 222767)
   var POSTHOG_UI = "https://eu.posthog.com";      // so replay/links point back to PostHog EU
+  var META_PIXEL_ID = "1040446045164282"; // Meta Pixel ID (public, client-side) — same pixel as the CAPI META_PIXEL_ID secret
+  // TM event → Meta standard event. Purchase is deliberately absent: it is sent server-side
+  // only (CAPI, event_id = Stripe object id) — a browser Purchase without that exact
+  // event_id would double-count in Meta. Lead fires at email capture (the funnel's lead
+  // definition) and dedups against submit-quiz's CAPI Lead via props.event_id.
+  var FBQ_EVENTS = { quiz_email_captured: "Lead", pay_view: "InitiateCheckout", pay_submitted: "AddPaymentInfo" };
 
   function sid() {
     try {
@@ -50,6 +56,7 @@
     send(row);
     try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "tm_" + event, tm_props: row.props }); } catch (e) {}
     try { if (window.posthog && window.posthog.capture) window.posthog.capture(event, props || {}); } catch (e) {}
+    try { var fe = FBQ_EVENTS[event]; if (fe && window.fbq) window.fbq("track", fe, {}, row.props.event_id ? { eventID: row.props.event_id } : undefined); } catch (e) {}
   }
   function identify(userId) {
     if (!userId) return; window.__tm_uid = userId;
@@ -60,6 +67,12 @@
   if (POSTHOG_KEY) {
     !function (t, e) { var o, n, p, r; e.__SV || (window.posthog = e, e._i = [], e.init = function (i, s, a) { function g(t, e) { var o = e.split("."); 2 == o.length && (t = t[o[0]], e = o[1]), t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } } (p = t.createElement("script")).type = "text/javascript", p.async = !0, p.src = s.api_host + "/static/array.js", (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r); var u = e; for (void 0 !== a ? u = e[a] = [] : a = "posthog", u.people = u.people || [], u.toString = function (t) { var e = "posthog"; return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e }, u.people.toString = function () { return u.toString(1) + ".people (stub)" }, o = "capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep".split(" "), n = 0; n < o.length; n++) g(u, o[n]); e._i.push([i, s, a]) }, e.__SV = 1) }(document, window.posthog || []);
     try { window.posthog.init(POSTHOG_KEY, { api_host: POSTHOG_HOST, ui_host: POSTHOG_UI, defaults: "2026-05-30", person_profiles: "identified_only", capture_pageview: true }); } catch (e) {}
+  }
+
+  // ---- Meta Pixel loader (only when an ID is set) ----
+  if (META_PIXEL_ID) {
+    !function (f, b, e, v, n, t, s) { if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments) }; if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = []; t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s) }(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    try { window.fbq("init", META_PIXEL_ID); window.fbq("track", "PageView"); } catch (e) {}
   }
 
   window.TM = { track: track, identify: identify, sid: sid };
