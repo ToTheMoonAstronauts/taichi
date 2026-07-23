@@ -2,6 +2,9 @@
 // quiz_sessions/users and writes email_sends/email_suppressions. Never touches checkout/subs.
 // Cron-triggered hourly. Safety-gated: sends nothing unless LEAD_EMAILS_ENABLED=1 AND a
 // BUSINESS_ADDRESS is set (CAN-SPAM). ?dry=1 returns due counts without sending.
+// Sequence (timing lives in the due_lead_emails RPC): step 1 "plan saved" at 1h,
+// step 2 "value stack" at 24h, step 3 free guide (buyers 30min / non-buyers 48h soft close),
+// step 4 gentle re-engagement at 30 days. Steps are send-slots, not send order.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type, x-cron-key', 'Access-Control-Allow-Methods': 'POST, GET, OPTIONS' };
@@ -17,6 +20,28 @@ const CRON_KEY = Deno.env.get('CRON_KEY') || '';
 const FUNNEL = 'https://taimotion.com';
 const esc = (s: string) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const b64url = (s: string) => btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+// Attribution: every CTA carries utm_campaign=step-N so returns are visible in analytics.
+const withUtm = (url: string, step: number) =>
+  url + (url.includes('?') ? '&' : '?') + `utm_source=lead-email&utm_medium=email&utm_campaign=step-${step}`;
+
+// Personalization from quiz_sessions (via due_lead_emails RPC). Name is only used when it
+// looks like a plain given name — quiz free-text can contain anything.
+const firstName = (name?: string | null) => {
+  const n = String(name || '').trim().split(/\s+/)[0] || '';
+  return /^[\p{L}][\p{L}'-]{1,19}$/u.test(n) ? n : '';
+};
+const FOCUS_LABELS: Record<string, string> = {
+  lose_weight: 'gentle weight loss',
+  feel_healthier: 'feeling healthier day to day',
+  lower_stress: 'a calmer mind',
+  memory_focus: 'memory and focus',
+};
+function focusPhrase(focus?: string[] | null) {
+  const parts = (focus || []).map((f) => FOCUS_LABELS[f]).filter(Boolean).slice(0, 3);
+  if (!parts.length) return 'balance, mobility and a calmer mind';
+  return parts.length === 1 ? parts[0] : parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1];
+}
 
 async function sign(msg: string) {
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(UNSUB_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
@@ -39,15 +64,19 @@ function shell(inner: string, unsubUrl: string) {
 function cta(url: string, label: string) {
   return `<div style="margin:22px 0"><a href="${url}" style="display:inline-block;background:#3f7a52;color:#fff;text-decoration:none;font-weight:600;font-size:16px;padding:13px 26px;border-radius:12px">${label}</a></div>`;
 }
-function buildEmail(step: number, resumeUrl: string, unsubUrl: string) {
+function buildEmail(step: number, resumeUrl: string, unsubUrl: string, name?: string | null, focus?: string[] | null) {
+  const resume = withUtm(resumeUrl, step);
+  const fn = firstName(name);
+  const hi = fn ? `Hi ${esc(fn)},` : 'Hi there,';
+  const goals = esc(focusPhrase(focus));
   if (step === 1) {
     return {
       subject: 'Your gentle plan is saved 🌿',
       html: shell(
-        `<p>Hi there,</p>
-         <p>Your personalized Chair Tai Chi plan is ready — built from the answers you gave us. Gentle, seated movement for balance, mobility and a calmer mind, just a few minutes a day.</p>
+        `<p>${hi}</p>
+         <p>Your personalized Chair Tai Chi plan is ready — built from the answers you gave us, with a focus on <b>${goals}</b>. Gentle, seated movement, just a few minutes a day.</p>
          <p>Good news: <b>your introductory price is still held</b> — a real saving on your first plan — but we can only keep it reserved for a little while.</p>
-         ${cta(resumeUrl, 'Finish setting up my plan')}
+         ${cta(resume, 'Finish setting up my plan')}
          <p style="color:#6b6250">You can cancel anytime, in a couple of clicks.</p>
          <p style="color:#6b6250">Warmly,<br>The Tai Motion team</p>`, unsubUrl),
     };
@@ -56,19 +85,31 @@ function buildEmail(step: number, resumeUrl: string, unsubUrl: string) {
     return {
       subject: 'A little gift for you — your free Chair Tai Chi guide 🌿',
       html: shell(
-        `<p>Hi there,</p>
+        `<p>${hi}</p>
          <p>No pressure at all — whether or not now's the right time, we wanted to send you the free demo of <b>Chair Tai Chi</b> printable PDF guide we promised. It's yours to keep.</p>
-         ${cta(FUNNEL + '/free-chair-guide', 'Get my free guide')}
+         ${cta(withUtm(FUNNEL + '/free-chair-guide', step), 'Get my free guide')}
          <p>A gentle, printable chair routine you can start today — no strings attached.</p>
-         <p style="color:#6b6250">And whenever you're ready for the full chair Tai Chi program, <a href="${resumeUrl}" style="color:#3f7a52">your plan is still saved</a>.</p>
+         <p style="color:#6b6250">And whenever you're ready for the full chair Tai Chi program, <a href="${resume}" style="color:#3f7a52">your plan is still saved</a>.</p>
+         <p style="color:#6b6250">Warmly,<br>The Tai Motion team</p>`, unsubUrl),
+    };
+  }
+  if (step === 4) {
+    return {
+      subject: 'Your plan is still here, whenever you\'re ready 🌿',
+      html: shell(
+        `<p>${hi}</p>
+         <p>It's been a few weeks since you built your Chair Tai Chi plan with us, so we wanted to check in — gently, no rush and no pressure.</p>
+         <p>Your plan is still saved, focused on <b>${goals}</b>, and it only takes a few minutes a day to begin. Many people find the second try is the one that sticks.</p>
+         ${cta(resume, 'Take another look')}
+         <p style="color:#6b6250">And if now isn't the right season for it, that's completely okay — you can unsubscribe below and we won't write again.</p>
          <p style="color:#6b6250">Warmly,<br>The Tai Motion team</p>`, unsubUrl),
     };
   }
   return {
     subject: 'Still yours — here\'s everything waiting inside',
     html: shell(
-      `<p>Hi there,</p>
-       <p>Your plan is still saved at your <b>introductory price</b>. And it's more than a few exercises — here's what's waiting when you join:</p>
+      `<p>${hi}</p>
+       <p>Your plan is still saved at your <b>introductory price</b> — built around <b>${goals}</b>. And it's more than a few exercises — here's what's waiting when you join:</p>
        <ul style="padding-left:20px;color:#2c2417">
          <li><b>Personalized chair Tai Chi</b> — easy follow-along sessions at your level</li>
          <li><b>A personalized nutrition plan</b> — simple, gentle meals built around you</li>
@@ -76,7 +117,7 @@ function buildEmail(step: number, resumeUrl: string, unsubUrl: string) {
          <li><b>Simple trackers</b> — water, balance, mood and more, to watch how you feel improve</li>
        </ul>
        <p>All designed for real bodies and real days, entirely at your own pace — plus a few free bonus guides to keep.</p>
-       ${cta(resumeUrl, 'Start my plan')}
+       ${cta(resume, 'Start my plan')}
        <p style="color:#6b6250">Cancel anytime. And if it's not for you in the first 30 days, our refund policy has you covered.</p>
        <p style="color:#6b6250">Warmly,<br>The Tai Motion team</p>`, unsubUrl),
   };
@@ -104,8 +145,8 @@ Deno.serve(async (req) => {
     const tok = await sign(preview);
     const unsubUrl = `${SB_URL}/functions/v1/lead-unsubscribe?e=${b64url(preview)}&t=${tok}`;
     const results = [];
-    for (const step of [1, 2, 3]) {
-      const { subject, html } = buildEmail(step, resumeUrl, unsubUrl);
+    for (const step of [1, 2, 3, 4]) {
+      const { subject, html } = buildEmail(step, resumeUrl, unsubUrl, 'Mary', ['lose_weight', 'lower_stress']);
       const ok = await sendOne(preview, `[Preview • email ${step}] ${subject}`, html);
       results.push({ step, subject, ok });
     }
@@ -120,10 +161,10 @@ Deno.serve(async (req) => {
 
   const out: Record<string, unknown> = { dry, enabled: ENABLED, hasAddress: !!ADDRESS };
   let sent = 0; const sample: string[] = [];
-  for (const step of [1, 2, 3]) {
+  for (const step of [1, 2, 3, 4]) {
     const { data, error } = await svc.rpc('due_lead_emails', { p_step: step });
     if (error) { out['step' + step] = 'error: ' + error.message; continue; }
-    const rows = (data || []) as { quiz_session_id: string; email: string }[];
+    const rows = (data || []) as { quiz_session_id: string; email: string; name?: string | null; focus?: string[] | null }[];
     out['step' + step + '_due'] = rows.length;
     if (dry) { rows.slice(0, 5).forEach((r) => sample.push(step + ':' + r.email.replace(/(.).*(@.*)/, '$1***$2'))); continue; }
     for (const row of rows.slice(0, 100)) {
@@ -132,7 +173,7 @@ Deno.serve(async (req) => {
       const resumeUrl = `${FUNNEL}/checkout?resume=${row.quiz_session_id}`;
       const tok = await sign(row.email);
       const unsubUrl = `${SB_URL}/functions/v1/lead-unsubscribe?e=${b64url(row.email)}&t=${tok}`;
-      const { subject, html } = buildEmail(step, resumeUrl, unsubUrl);
+      const { subject, html } = buildEmail(step, resumeUrl, unsubUrl, row.name, row.focus);
       const ok = await sendOne(row.email, subject, html);
       if (ok) sent++; else await svc.from('email_sends').delete().eq('id', ins[0].id);   // let it retry next run
     }
