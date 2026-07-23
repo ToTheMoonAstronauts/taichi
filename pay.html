@@ -64,57 +64,96 @@
     // Renewal fine print intentionally hidden on this step (terms already shown on the checkout step).
 
     const payLoader = document.getElementById("payLoader");
-    let stripe, elements;
     // Optional promo via URL param, e.g. /pay?promo=TMTEST50 — no visible field.
     const promoCode = new URLSearchParams(location.search).get("promo") || localStorage.getItem("ctc_promo") || "";
-    async function initSub(code) {
-      payBtn.disabled = true; msg.textContent = "";
-      document.getElementById("payment-element").innerHTML = "";
-      payLoader.style.display = "flex";               // show spinner while the sub is created + card form mounts
-      window._payT0 = Date.now(); try { if (window.TM) TM.track("pay_view", { plan: planId }); } catch (e) {}
-      if (!s.email || !s.id) { payLoader.style.display = "none"; msg.textContent = "Missing your details — please restart the quiz."; return; }
-      try {
-        // Safety net for the rare case the quiz's fire-and-forget submit never landed: run the
-        // quiz sync IN PARALLEL with createSubscription (it was a serial ~1s round trip before).
-        // Only when the server says the row is missing/has no email do we wait for it and retry once.
-        const quizSync = API.submitQuiz(s);
-        let fb = {}; try { fb = JSON.parse(localStorage.getItem("ctc_fbc")) || {}; } catch (e) {}   // Meta ad-click id (captured site-wide by track.js)
-        const subArgs = { plan_id: planId, quiz_session_id: s.id, promo_code: code || undefined, fbclid: fb.fbclid, fbclid_t: fb.fbclid_t };
-        let r = await API.createSubscription(subArgs);
-        if (r && (r.error === "quiz session has no email" || r.error === "unknown quiz session")) {
-          await quizSync;
-          r = await API.createSubscription(subArgs);
-        }
-        if (r && r.error === "already subscribed") {
-          msg.textContent = "You already have an active plan. Redirecting to the app…";
-          setTimeout(() => location.href = "https://app.taimotion.com/", 1500); return;   // keep loader (navigating)
-        }
-        if (r && r.error === "invalid promo code") { return initSub(""); }   // bad ?promo -> normal pricing
-        if (r && r.activated) {                       // first invoice needed no card charge -> sub already active
-          s.subscriptionId = r.subscriptionId; s.checkoutToken = r.checkoutToken;
-          s.paid = true; s.status = "paid";
-          s.order = [{ id:"base_plan", label: plan.name, amount: plan.intro, recurring:true }];
-          FLOW.save(s);
-          try { if (window.TM) TM.track("pay_succeeded", { plan: planId, mode: "activated_no_charge" }); } catch (e) {}
-          location.href = "upsell1.html"; return;     // keep loader (navigating); webhook provisions access
-        }
-        if (!r || !r.clientSecret) { payLoader.style.display = "none"; try { if (window.TM) TM.track("pay_form_error", { reason: "no_client_secret" }); } catch (e) {} msg.textContent = "Could not start checkout. Please refresh and retry."; return; }
-        s.subscriptionId = r.subscriptionId; s.checkoutToken = r.checkoutToken; FLOW.save(s);
-        if (typeof r.amount === "number") document.getElementById("total").textContent = FLOW.money(r.amount / 100);
-        stripe = window.stripeClient();
-        elements = stripe.elements({ clientSecret: r.clientSecret, appearance: { theme: "flat" } });
-        const paymentEl = elements.create("payment");
-        paymentEl.on("ready", () => { payLoader.style.display = "none"; payBtn.disabled = false; try { if (window.TM) TM.track("pay_form_loaded", { ms: Date.now() - (window._payT0 || Date.now()) }); } catch (e) {} });  // hide spinner only when the card fields are actually rendered
-        paymentEl.mount("#payment-element");
-      } catch (e) { payLoader.style.display = "none"; try { if (window.TM) TM.track("pay_form_error", { reason: "exception" }); } catch (er) {} msg.textContent = "Could not start checkout. Please refresh and retry."; }
+
+    /* DEFERRED-INTENT checkout: the card form mounts immediately (~1s) with only
+     * {mode, amount, currency}, while create-subscription (~5s of Stripe API work) runs in
+     * the background. The two meet at confirm time: elements.submit() -> await the sub's
+     * clientSecret -> stripe.confirmPayment({elements, clientSecret}). Every option passed
+     * to elements() below MUST match the invoice PaymentIntent that create-subscription
+     * produces (card-only, usd) or confirmPayment rejects — see Stripe
+     * "accept-a-payment-deferred" (type=subscription). */
+    const stripe = window.stripeClient();
+    let elements = null, mountedAmount = null, subReady = null;
+
+    function mountForm(amountCents) {
+      mountedAmount = amountCents;
+      elements = stripe.elements({
+        mode: "subscription", amount: amountCents, currency: "usd",
+        paymentMethodTypes: ["card"],                 // must mirror the server's payment_method_types
+        appearance: { theme: "flat" },
+      });
+      const paymentEl = elements.create("payment");
+      paymentEl.on("ready", () => { payLoader.style.display = "none"; payBtn.disabled = false; try { if (window.TM) TM.track("pay_form_loaded", { ms: Date.now() - (window._payT0 || Date.now()), mode: "deferred" }); } catch (e) {} });
+      paymentEl.mount("#payment-element");
     }
-    initSub(promoCode);
+
+    // Background subscription creation. Resolves to the server response ({clientSecret, ...})
+    // or null when it already navigated away (activated / already-subscribed) or failed.
+    async function createSub(code) {
+      // Safety net for the rare case the quiz's fire-and-forget submit never landed: run the
+      // quiz sync IN PARALLEL and only await + retry once when the server reports the row
+      // is missing or has no email.
+      const quizSync = API.submitQuiz(s);
+      let fb = {}; try { fb = JSON.parse(localStorage.getItem("ctc_fbc")) || {}; } catch (e) {}   // Meta ad-click id (captured site-wide by track.js)
+      const subArgs = { plan_id: planId, quiz_session_id: s.id, promo_code: code || undefined, fbclid: fb.fbclid, fbclid_t: fb.fbclid_t };
+      let r = await API.createSubscription(subArgs);
+      if (r && (r.error === "quiz session has no email" || r.error === "unknown quiz session")) {
+        await quizSync;
+        r = await API.createSubscription(subArgs);
+      }
+      if (r && r.error === "already subscribed") {
+        msg.textContent = "You already have an active plan. Redirecting to the app…";
+        setTimeout(() => location.href = "https://app.taimotion.com/", 1500); return null;
+      }
+      if (r && r.error === "invalid promo code") { return createSub(""); }   // bad ?promo -> normal pricing
+      if (r && r.activated) {                       // first invoice needed no card charge -> sub already active
+        s.subscriptionId = r.subscriptionId; s.checkoutToken = r.checkoutToken;
+        s.paid = true; s.status = "paid";
+        s.order = [{ id:"base_plan", label: plan.name, amount: plan.intro, recurring:true }];
+        FLOW.save(s);
+        try { if (window.TM) TM.track("pay_succeeded", { plan: planId, mode: "activated_no_charge" }); } catch (e) {}
+        location.href = "upsell1.html"; return null;  // webhook provisions access
+      }
+      if (!r || !r.clientSecret) { try { if (window.TM) TM.track("pay_form_error", { reason: "no_client_secret" }); } catch (e) {} msg.textContent = "Could not start checkout. Please refresh and retry."; return null; }
+      s.subscriptionId = r.subscriptionId; s.checkoutToken = r.checkoutToken; FLOW.save(s);
+      if (typeof r.amount === "number") {
+        document.getElementById("total").textContent = FLOW.money(r.amount / 100);
+        // A promo changed the first charge -> keep the mounted Element's amount in sync,
+        // otherwise confirmPayment rejects on the amount mismatch.
+        if (elements && r.amount !== mountedAmount) { elements.update({ amount: r.amount }); mountedAmount = r.amount; }
+      }
+      try { if (window.TM) TM.track("pay_sub_ready", { ms: Date.now() - (window._payT0 || Date.now()) }); } catch (e) {}
+      return r;
+    }
+
+    window._payT0 = Date.now(); try { if (window.TM) TM.track("pay_view", { plan: planId }); } catch (e) {}
+    if (!s.email || !s.id) {
+      payLoader.style.display = "none"; msg.textContent = "Missing your details — please restart the quiz.";
+    } else {
+      mountForm(Math.round(plan.intro * 100));
+      subReady = createSub(promoCode).catch(() => {
+        try { if (window.TM) TM.track("pay_form_error", { reason: "exception" }); } catch (er) {}
+        msg.textContent = "Could not start checkout. Please refresh and retry."; return null;
+      });
+    }
 
     payBtn.onclick = async () => {
-      if (!stripe || !elements) return;
+      if (!elements || !subReady) return;
       payBtn.disabled = true; msg.textContent = "";
       try { if (window.TM) TM.track("pay_submitted", { plan: planId }); } catch (e) {}
-      const { error } = await stripe.confirmPayment({ elements, redirect: "if_required", confirmParams: { return_url: location.origin + "/thankyou.html" } });
+      // Gesture-first: validate the form (and collect wallet PMs) before any awaits.
+      const sv = await elements.submit();
+      if (sv && sv.error) { payBtn.disabled = false; return; }   // the Element renders the error inline
+      const sub = await subReady;                    // normally resolved long before the user finishes typing
+      if (!sub || !sub.clientSecret) { msg.textContent = msg.textContent || "Could not start checkout. Please refresh and retry."; payBtn.disabled = false; return; }
+      if (typeof sub.amount === "number" && sub.amount !== mountedAmount) {   // ultra-fast clicker beat the amount sync
+        elements.update({ amount: sub.amount }); mountedAmount = sub.amount;
+        const sv2 = await elements.submit();
+        if (sv2 && sv2.error) { payBtn.disabled = false; return; }
+      }
+      const { error } = await stripe.confirmPayment({ elements, clientSecret: sub.clientSecret, redirect: "if_required", confirmParams: { return_url: location.origin + "/thankyou.html" } });
       if (error) { try { if (window.TM) TM.track("pay_failed", { message: (error.message || "").slice(0, 120), code: error.code || null, decline: error.decline_code || null }); } catch (e) {} msg.textContent = error.message || "Payment failed. Please check your card and retry."; payBtn.disabled = false; return; }
       try { if (window.TM) TM.track("pay_succeeded", { plan: planId }); } catch (e) {}
       const s2 = FLOW.get(); s2.paid = true; s2.status = "paid";

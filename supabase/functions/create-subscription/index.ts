@@ -8,6 +8,7 @@ const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Max-Age': '86400',   // cache the preflight — retries/reloads skip the OPTIONS round trip
 };
 // plan_id -> { price (recurring, regular amount), coupon (one-time intro discount) }
 const PLANS: Record<string, { price: string; coupon: string }> = {
