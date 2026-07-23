@@ -574,6 +574,9 @@
       if (window.API) API.submitQuiz(Object.assign({ fbclid: fb.fbclid, fbclid_t: fb.fbclid_t }, S));
       // Browser twin of the CAPI Lead — same event_id so Meta dedups the pair.
       try { if (window.TM) TM.track("quiz_email_captured", { event_id: "lead_" + S.id }); } catch (e) {}
+      // PostHog: identify by lowercased email — the members' app identifies the same
+      // way at login, so pre-purchase and in-app activity merge into one person.
+      try { if (window.posthog && window.posthog.identify) posthog.identify(v.toLowerCase(), { email: v }); } catch (e) {}
       go(1);
     }, !okEmail(S.email));
     inp.oninput = () => { btn.disabled = !okEmail(inp.value); inp.style.borderColor = ""; };
