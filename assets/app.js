@@ -17,8 +17,10 @@
   function load() {
     try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch { return null; }
   }
+  const PAGE_VARIANT = String(window.QUIZ_VARIANT || "a").toLowerCase();
   function fresh() {
     return { id: uuid(), funnel: F.product, created_at: new Date().toISOString(),
+      ab_test_name: F.abTestName || null, ab_test_variant: PAGE_VARIANT,
       age_band: null, answers: {}, index: 0, email: null, name: null,
       height_cm: null, weight_kg: null, goal_weight_kg: null, bmi: null,
       selected_plan: null, status: "in_progress" };
@@ -52,8 +54,34 @@
   function bmi() { if (!S.height_cm || !S.weight_kg) return null; const m = S.height_cm / 100; return +(S.weight_kg / (m * m)).toFixed(1); }
   function bmiCategory(b) { return b < 18.5 ? "underweight" : b < 25 ? "a healthy weight" : b < 30 ? "in the overweight range" : "in the obese range"; }
 
-  // Segmented, per-section loader (Digesti-style): 3 sections, each its own segment.
-  const SECS = ["My profile", "Activity", "Lifestyle"];
+  // Entry from the index/prelander always starts a brand-new quiz. This used to live in the
+  // boot block at the bottom, but it must run BEFORE the variant reconciliation below —
+  // otherwise a post-email user switching variants gets a session/screen-list mismatch.
+  const _entry = new URLSearchParams(location.search);
+  if (_entry.get("start") !== null || _entry.get("fresh") !== null || _entry.get("new") !== null) {
+    S = fresh(); save();
+  }
+  // ---- quiz-length A/B/C: adopt/reconcile the variant, then filter the screen list.
+  // Must run BEFORE _secOf/_secLen below (they're derived from F.screens).
+  if (!S.ab_test_variant) {           // pre-test sessions: adopt this page's variant
+    S.ab_test_name = F.abTestName || null; S.ab_test_variant = PAGE_VARIANT; save();
+  } else if (S.ab_test_variant !== PAGE_VARIANT && S.status === "in_progress" && !S.email) {
+    S = fresh(); save();              // switched variant mid-quiz: restart under the page's variant
+  }                                   // (post-email sessions keep their recorded variant)
+  const VARIANT = S.ab_test_variant;
+  const VDEF = (F.variants || {})[VARIANT] || null;
+  if (VDEF) {
+    const _cut = new Set(VDEF.cut || []);
+    F.screens = F.screens.filter(s => !_cut.has(s.id));
+    Object.entries(VDEF.copy || {}).forEach(([id, patch]) => {
+      const scr = F.screens.find(s => s.id === id); if (scr) Object.assign(scr, patch);
+    });
+  }
+
+  // Segmented, per-section loader (Digesti-style): sections, each its own segment.
+  const SECS = (VDEF && VDEF.secs) || ["My profile", "Activity", "Lifestyle"];
+  // quiz.html hardcodes 3 .seg spans — trim to this variant's section count.
+  { const _pr = $("#progress"); if (_pr) while (_pr.children.length > SECS.length) _pr.removeChild(_pr.lastChild); }
   const SEL_DELAY = 450; // ms — let the tap register (show selected state) before auto-advancing
   const _secOf = (() => { let cur = 0; return F.screens.map(s => { const i = SECS.indexOf(s.section); if (i >= 0) cur = i; return cur; }); })();
   const _secLen = SECS.map((_, i) => _secOf.filter(x => x === i).length);
@@ -102,7 +130,7 @@
     setProgress();
     const scr = F.screens[S.index];
     if (!scr) { window.location.href = "checkout.html"; return; }
-    try { if (window.TM) { if (!window._qStarted) { window._qStarted = 1; TM.track("quiz_start", {}); } TM.track("quiz_step", { i: S.index, id: scr.id || scr.key || scr.q || null, type: scr.type || null, section: scr.section || null }); } } catch (e) {}
+    try { if (window.TM) { if (!window._qStarted) { window._qStarted = 1; TM.track("quiz_start", { variant: VARIANT }); } TM.track("quiz_step", { variant: VARIANT, i: S.index, id: scr.id || scr.key || scr.q || null, type: scr.type || null, section: scr.section || null }); } } catch (e) {}
     document.body.classList.toggle("scr-info", scr.type === "info");   // dark treatment for interstitials
     // Interim screens (info / loader) are full-bleed like Digesti — no progress bar, section label or back.
     const _interim = scr.type === "info" || scr.type === "loader";
@@ -733,10 +761,7 @@
     go(-1);
   };
   const _qp = new URLSearchParams(location.search);
-  // Entry from the index/prelander always starts a brand-new quiz.
-  if (_qp.get("start") !== null || _qp.get("fresh") !== null || _qp.get("new") !== null) {
-    if (window.CTC) { window.CTC.reset(); S = window.CTC.get(); }
-  }
+  // (?start/?fresh/?new reset moved above the variant reconciliation near the top of the file.)
   if (_qp.get("autotest") !== null || _qp.get("test") !== null || _qp.get("funnel") === "test"
       || _qp.get("step") !== null || _qp.get("goto") !== null) autotestFill();
   else { S.gender = "female"; save(); if (!S.age_band) ageGate(); else render(); }  // female-only: gender step removed
